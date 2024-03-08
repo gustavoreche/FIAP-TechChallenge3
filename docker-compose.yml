@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  db:
+    image: mariadb:10.5
+    container_name: "containerBancoDeDados"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./scriptBancoDeDados:/docker-entrypoint-initdb.d
+    ports:
+      - "3308:3306"
+    restart: always
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app-sistema-restaurante
+    environment:
+      MARIADB_HOST: db:3306
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    restart: always
