@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  db:
+    image: mariadb:10.5
+    hostname: db
+    container_name: "containerBancoDeDados"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./../scriptBancoDeDados:/docker-entrypoint-initdb.d
+    ports:
+      - "3308:3306"
+    restart: always
