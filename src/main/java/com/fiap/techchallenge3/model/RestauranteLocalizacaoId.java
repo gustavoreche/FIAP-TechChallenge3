@@ -7,7 +7,8 @@ import lombok.Data;
 @Data
 public class RestauranteLocalizacaoId {
 	
-	private String nome;
-	private String email;
+	private String logradouro;
+	private String numero;
+	private int cep;
 
 }
