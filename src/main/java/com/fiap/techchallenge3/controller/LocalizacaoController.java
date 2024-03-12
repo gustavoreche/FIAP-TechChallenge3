@@ -22,6 +22,8 @@ import static com.fiap.techchallenge3.controller.LocalizacaoController.URL_LOCAL
 @RequestMapping(URL_LOCALIZACAO)
 public class LocalizacaoController {
 
+	public static final String REGEX_CEP = "^\\d{5}-\\d{3}$";
+
 	public static final String URL_LOCALIZACAO = "/localizacao";
 	public static final String URL_LOCALIZACAO_POR_CEP = URL_LOCALIZACAO.concat("/{cep}");
 
@@ -36,7 +38,7 @@ public class LocalizacaoController {
 	)
 	@GetMapping("/{cep}")
 	public ResponseEntity<LocalizacaoDTO> buscaPorCep(@PathVariable
-													  @Pattern(regexp = "^\\d{5}-\\d{3}$") final String cep) {
+													  @Pattern(regexp = REGEX_CEP) final String cep) {
 		return ResponseEntity
 				.status(HttpStatus.OK)
 				.body(this.service.buscaPorCep(cep));

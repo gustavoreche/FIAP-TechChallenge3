@@ -8,7 +8,7 @@ import lombok.Data;
 public class RestauranteLocalizacaoId {
 	
 	private String logradouro;
-	private String numero;
+	private int numero;
 	private int cep;
 
 }
