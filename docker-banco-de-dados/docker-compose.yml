@@ -2,13 +2,14 @@ version: "3.8"
 
 services:
   db:
-    image: mariadb:10.5
+    image: postgres:16.2
     hostname: db
     container_name: "containerBancoDeDados"
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
     volumes:
       - ./../scriptBancoDeDados:/docker-entrypoint-initdb.d
     ports:
-      - "3308:3306"
+      - "5433:5432"
     restart: always
