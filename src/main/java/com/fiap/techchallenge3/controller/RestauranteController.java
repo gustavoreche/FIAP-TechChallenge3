@@ -1,5 +1,6 @@
 package com.fiap.techchallenge3.controller;
 
+import com.fiap.techchallenge3.model.dto.CriaRestauranteDTO;
 import com.fiap.techchallenge3.service.RestauranteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,13 +31,21 @@ public class RestauranteController {
 	}
 
 	@Operation(
-			summary = "Serviço para cadastrar restaurante."
+			summary = "Serviço para cadastrar restaurante.",
+			description = """
+					DICA: Para não digitar toda a LOCALIZAÇÃO completa, o endpoint "/localizacao/{cep}"
+					fornece a maioria dos dados que são obrigatórios, tendo que ser preenchido somente
+					os campos abaixo:
+					
+						- número (número do endereço)
+						- complemento (opcional, se não tiver, não preencher).
+					"""
 	)
 	@PostMapping
-	public ResponseEntity<String> cadastra(@RequestBody @Valid final String teste) {
+	public ResponseEntity<String> cadastra(@RequestBody @Valid final CriaRestauranteDTO dadosRestaurante) {
 		return ResponseEntity
 				.status(HttpStatus.CREATED)
-				.body(this.service.cadastra());
+				.body(this.service.cadastra(dadosRestaurante));
 	}
 
 }
