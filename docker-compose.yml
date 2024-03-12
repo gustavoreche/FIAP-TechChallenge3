@@ -2,14 +2,15 @@ version: "3.8"
 
 services:
   db:
-    image: mariadb:10.5
+    image: postgres:16.2
     container_name: "containerBancoDeDados"
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
     volumes:
       - ./scriptBancoDeDados:/docker-entrypoint-initdb.d
     ports:
-      - "3308:3306"
+      - "5433:5432"
     restart: always
   app:
     build:
@@ -17,7 +18,7 @@ services:
       dockerfile: Dockerfile
     container_name: app-sistema-restaurante
     environment:
-      MARIADB_HOST: db:3306
+      POSTGRES_HOST: db:5432
     ports:
       - "8080:8080"
     depends_on:
