@@ -175,15 +175,15 @@ class RestauranteCadastraTests {
 	private static HorarioDeFuncionamentoDTO horarioFuncionamentoDefault() {
 		return new HorarioDeFuncionamentoDTO(
 				List.of(DiasEnum.TODOS),
-				"ap1122"
+				"18:00 ate 23:00"
 		);
 	}
 
 	private static HorarioDeFuncionamentoDTO criaHorarioFuncionamento(List<DiasEnum> diasAbertos,
-																	  String complemento) {
+																	  String horarioFuncionamento) {
 		return new HorarioDeFuncionamentoDTO(
 				diasAbertos,
-				complemento
+				horarioFuncionamento
 		);
 	}
 
@@ -244,7 +244,9 @@ class RestauranteCadastraTests {
 				Arguments.of("04623021000114", "Nome de teste", localizacaoDefault(),
 						TipoCozinhaEnum.COMIDA_JAPONESA, criaHorarioFuncionamento(List.of(DiasEnum.SEGUNDA_FEIRA), " "), 10),
 				Arguments.of("04623021000114", "Nome de teste", localizacaoDefault(),
-						TipoCozinhaEnum.COMIDA_JAPONESA, criaHorarioFuncionamento(List.of(), "aa"), 10),
+						TipoCozinhaEnum.COMIDA_JAPONESA, criaHorarioFuncionamento(List.of(DiasEnum.SEGUNDA_FEIRA), "aaaa"), 10),
+				Arguments.of("04623021000114", "Nome de teste", localizacaoDefault(),
+						TipoCozinhaEnum.COMIDA_JAPONESA, criaHorarioFuncionamento(List.of(), "18:00 ate 23:00"), 10),
 				Arguments.of("04623021000114", "Nome de teste", localizacaoDefault(),
 						TipoCozinhaEnum.COMIDA_JAPONESA, horarioFuncionamentoDefault(), 0),
 				Arguments.of("04623021000114", "Nome de teste", localizacaoDefault(),
