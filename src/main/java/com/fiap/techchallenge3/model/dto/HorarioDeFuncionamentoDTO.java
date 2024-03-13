@@ -15,8 +15,8 @@ public record HorarioDeFuncionamentoDTO(
 		@NotEmpty(message = "O diasAbertos nao pode ser vazio")
 		@JsonInclude(JsonInclude.Include.NON_NULL)
 		List<DiasEnum> diasAbertos,
-		@NotBlank(message = "O estado nao pode ser vazio")
-		@Pattern(regexp = "^\\w{2}$")
+		@NotBlank(message = "O horarioFuncionamento nao pode ser vazio")
+		@Pattern(regexp = "^\\d{2}:\\d{2}\\sate\\s\\d{2}:\\d{2}$|^24horas$")
 		@JsonInclude(JsonInclude.Include.NON_NULL)
-		String estado
+		String horarioFuncionamento
 ) {}
