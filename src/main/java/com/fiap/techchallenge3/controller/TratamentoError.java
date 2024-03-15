@@ -1,5 +1,6 @@
 package com.fiap.techchallenge3.controller;
 
+import com.fiap.techchallenge3.controller.exception.HorarioInvalidoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
@@ -34,6 +35,12 @@ public class TratamentoError {
 	@ExceptionHandler({HttpMessageNotReadableException.class, HandlerMethodValidationException.class, MethodArgumentTypeMismatchException.class})
 	public String trataErroNaValidacao(Exception ex) {
 		return "Erro de valor nos campos... O campo espera um valor(texto, número...) e foi passado outro valor. Segue o valor errado: " + ex.getMessage();
+	}
+
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ExceptionHandler(HorarioInvalidoException.class)
+	public String trataErroDeHorarioInvalido(HorarioInvalidoException ex) {
+		return "Erro na definição dos horarios... Exemplo de como deve ser: 22:10. Segue o valor errado: " + ex.getMessage();
 	}
 
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

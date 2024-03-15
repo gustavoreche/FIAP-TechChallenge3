@@ -42,10 +42,11 @@ public class RestauranteController {
 					"""
 	)
 	@PostMapping
-	public ResponseEntity<String> cadastra(@RequestBody @Valid final CriaRestauranteDTO dadosRestaurante) {
+	public ResponseEntity<Void> cadastra(@RequestBody @Valid final CriaRestauranteDTO dadosRestaurante) {
+		this.service.cadastra(dadosRestaurante);
 		return ResponseEntity
 				.status(HttpStatus.CREATED)
-				.body(this.service.cadastra(dadosRestaurante));
+				.build();
 	}
 
 }
