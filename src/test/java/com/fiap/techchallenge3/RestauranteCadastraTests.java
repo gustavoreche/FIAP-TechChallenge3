@@ -2,15 +2,15 @@ package com.fiap.techchallenge3;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiap.techchallenge3.model.DiasEnum;
+import com.fiap.techchallenge3.model.RestauranteId;
+import com.fiap.techchallenge3.model.RestauranteLocalizacaoId;
 import com.fiap.techchallenge3.model.TipoCozinhaEnum;
 import com.fiap.techchallenge3.model.dto.CriaRestauranteDTO;
 import com.fiap.techchallenge3.model.dto.EnderecoCompletoDTO;
 import com.fiap.techchallenge3.model.dto.HorarioDeFuncionamentoDTO;
+import com.fiap.techchallenge3.repository.RestauranteLocalizacaoRepository;
 import com.fiap.techchallenge3.repository.RestauranteRepository;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -40,16 +40,310 @@ class RestauranteCadastraTests {
 	private ObjectMapper objectMapper;
 
 	@Autowired
-	RestauranteRepository repository;
+	RestauranteRepository repositoryRestaurante;
+
+	@Autowired
+	RestauranteLocalizacaoRepository repositoryRestauranteLocalizacao;
 
 	@BeforeEach
 	void inicializaLimpezaDoDatabase() {
-		this.repository.deleteAll();
+		this.repositoryRestaurante.deleteAll();
+		this.repositoryRestauranteLocalizacao.deleteAll();
 	}
 
 	@AfterAll
 	void finalizaLimpezaDoDatabase() {
-		this.repository.deleteAll();
+		this.repositoryRestaurante.deleteAll();
+		this.repositoryRestauranteLocalizacao.deleteAll();
+	}
+
+
+	@Test
+	public void deveRetornarStatus201_criaRestaurante() throws Exception {
+		var request = new CriaRestauranteDTO(
+				"49.251.058/0001-05",
+				"Restaurante Teste",
+				localizacaoDefault(),
+				TipoCozinhaEnum.COMIDA_ARABE,
+				horarioFuncionamentoDefault(),
+				500
+		);
+		var objectMapper = this.objectMapper
+				.writer()
+				.withDefaultPrettyPrinter();
+		var jsonRequest = objectMapper.writeValueAsString(request);
+
+		this.mockMvc
+				.perform(MockMvcRequestBuilders.post(URL_RESTAURANTE)
+						.content(jsonRequest)
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isCreated()
+				);
+
+		var restauranteLocalizacao = this.repositoryRestauranteLocalizacao.findAll().get(0);
+		var restaurante = this.repositoryRestaurante.findAll().get(0);
+
+		Assertions.assertEquals(1, this.repositoryRestauranteLocalizacao.findAll().size());
+		Assertions.assertEquals(1, this.repositoryRestaurante.findAll().size());
+		Assertions.assertEquals("rua teste", restauranteLocalizacao.getId().getLogradouro());
+		Assertions.assertEquals(10, restauranteLocalizacao.getId().getNumero());
+		Assertions.assertEquals("14000000", restauranteLocalizacao.getId().getCep());
+		Assertions.assertEquals("bairro teste", restauranteLocalizacao.getBairro());
+		Assertions.assertEquals("cidade teste", restauranteLocalizacao.getCidade());
+		Assertions.assertEquals("SP", restauranteLocalizacao.getEstado());
+		Assertions.assertEquals("ap1122", restauranteLocalizacao.getComplemento());
+
+		Assertions.assertEquals("49251058000105", restaurante.getId().getCnpj());
+		Assertions.assertEquals("rua teste", restaurante.getId().getLocalizacao().getId().getLogradouro());
+		Assertions.assertEquals(10, restaurante.getId().getLocalizacao().getId().getNumero());
+		Assertions.assertEquals("14000000", restaurante.getId().getLocalizacao().getId().getCep());
+		Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, restaurante.getTipoCozinha());
+		Assertions.assertEquals(List.of(DiasEnum.TODOS).toString(), restaurante.getDiasFuncionamento());
+		Assertions.assertEquals("18:00 ate 23:00", restaurante.getHorarioFuncionamento());
+		Assertions.assertEquals(500, restaurante.getCapacidadeDePessoas());
+	}
+
+	@Test
+	public void deveRetornarStatus201_criaRestauranteFuncionamento24horas() throws Exception {
+		var request = new CriaRestauranteDTO(
+				"49.251.058/0001-05",
+				"Restaurante Teste",
+				localizacaoDefault(),
+				TipoCozinhaEnum.COMIDA_ARABE,
+				criaHorarioFuncionamento(List.of(DiasEnum.SEGUNDA_FEIRA), "24horas"),
+				500
+		);
+		var objectMapper = this.objectMapper
+				.writer()
+				.withDefaultPrettyPrinter();
+		var jsonRequest = objectMapper.writeValueAsString(request);
+
+		this.mockMvc
+				.perform(MockMvcRequestBuilders.post(URL_RESTAURANTE)
+						.content(jsonRequest)
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isCreated()
+				);
+
+		var restauranteLocalizacao = this.repositoryRestauranteLocalizacao.findAll().get(0);
+		var restaurante = this.repositoryRestaurante.findAll().get(0);
+
+		Assertions.assertEquals(1, this.repositoryRestauranteLocalizacao.findAll().size());
+		Assertions.assertEquals(1, this.repositoryRestaurante.findAll().size());
+		Assertions.assertEquals("rua teste", restauranteLocalizacao.getId().getLogradouro());
+		Assertions.assertEquals(10, restauranteLocalizacao.getId().getNumero());
+		Assertions.assertEquals("14000000", restauranteLocalizacao.getId().getCep());
+		Assertions.assertEquals("bairro teste", restauranteLocalizacao.getBairro());
+		Assertions.assertEquals("cidade teste", restauranteLocalizacao.getCidade());
+		Assertions.assertEquals("SP", restauranteLocalizacao.getEstado());
+		Assertions.assertEquals("ap1122", restauranteLocalizacao.getComplemento());
+
+		Assertions.assertEquals("49251058000105", restaurante.getId().getCnpj());
+		Assertions.assertEquals("rua teste", restaurante.getId().getLocalizacao().getId().getLogradouro());
+		Assertions.assertEquals(10, restaurante.getId().getLocalizacao().getId().getNumero());
+		Assertions.assertEquals("14000000", restaurante.getId().getLocalizacao().getId().getCep());
+		Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, restaurante.getTipoCozinha());
+		Assertions.assertEquals(List.of(DiasEnum.SEGUNDA_FEIRA).toString(), restaurante.getDiasFuncionamento());
+		Assertions.assertEquals("24horas", restaurante.getHorarioFuncionamento());
+		Assertions.assertEquals(500, restaurante.getCapacidadeDePessoas());
+	}
+
+	@Test
+	public void deveRetornarStatus201_criaRestauranteComMesmoCpnjEmOutraLocalizacao() throws Exception {
+		var request = new CriaRestauranteDTO(
+				"49.251.058/0001-05",
+				"Restaurante Teste",
+				localizacaoDefault(),
+				TipoCozinhaEnum.COMIDA_ARABE,
+				horarioFuncionamentoDefault(),
+				500
+		);
+
+		var restauranteLocalizacaoSalvo = request.converteLocalizacao();
+		restauranteLocalizacaoSalvo.setId(
+				RestauranteLocalizacaoId.builder()
+						.logradouro("rua teste")
+						.numero(12)
+						.cep("14000-000")
+						.build()
+		);
+		this.repositoryRestauranteLocalizacao.save(restauranteLocalizacaoSalvo);
+		var restauranteSalvo = request.converte();
+		restauranteSalvo.setId(
+				RestauranteId.builder()
+						.cnpj(restauranteSalvo.getId().getCnpj())
+						.localizacao(restauranteLocalizacaoSalvo)
+						.build()
+		);
+		this.repositoryRestaurante.save(restauranteSalvo);
+
+		var objectMapper = this.objectMapper
+				.writer()
+				.withDefaultPrettyPrinter();
+		var jsonRequest = objectMapper.writeValueAsString(request);
+
+		this.mockMvc
+				.perform(MockMvcRequestBuilders.post(URL_RESTAURANTE)
+						.content(jsonRequest)
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isCreated()
+				);
+
+		Assertions.assertEquals(2, this.repositoryRestauranteLocalizacao.findAll().size());
+		Assertions.assertEquals(2, this.repositoryRestaurante.findAll().size());
+	}
+
+	@Test
+	public void deveRetornarStatus201_criaRestauranteSemComplemento() throws Exception {
+		var request = new CriaRestauranteDTO(
+				"49251058000105",
+				"Restaurante Teste",
+				criaLocalizacao("rua teste", 10, "14000-000", "bairro teste", "cidade teste", "SP", null),
+				TipoCozinhaEnum.COMIDA_ARABE,
+				horarioFuncionamentoDefault(),
+				500
+		);
+		var objectMapper = this.objectMapper
+				.writer()
+				.withDefaultPrettyPrinter();
+		var jsonRequest = objectMapper.writeValueAsString(request);
+
+		this.mockMvc
+				.perform(MockMvcRequestBuilders.post(URL_RESTAURANTE)
+						.content(jsonRequest)
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isCreated()
+				);
+
+		var restauranteLocalizacao = this.repositoryRestauranteLocalizacao.findAll().get(0);
+		var restaurante = this.repositoryRestaurante.findAll().get(0);
+
+		Assertions.assertEquals(1, this.repositoryRestauranteLocalizacao.findAll().size());
+		Assertions.assertEquals(1, this.repositoryRestaurante.findAll().size());
+		Assertions.assertEquals("rua teste", restauranteLocalizacao.getId().getLogradouro());
+		Assertions.assertEquals(10, restauranteLocalizacao.getId().getNumero());
+		Assertions.assertEquals("14000000", restauranteLocalizacao.getId().getCep());
+		Assertions.assertEquals("bairro teste", restauranteLocalizacao.getBairro());
+		Assertions.assertEquals("cidade teste", restauranteLocalizacao.getCidade());
+		Assertions.assertEquals("SP", restauranteLocalizacao.getEstado());
+		Assertions.assertNull(restauranteLocalizacao.getComplemento());
+
+		Assertions.assertEquals("49251058000105", restaurante.getId().getCnpj());
+		Assertions.assertEquals("rua teste", restaurante.getId().getLocalizacao().getId().getLogradouro());
+		Assertions.assertEquals(10, restaurante.getId().getLocalizacao().getId().getNumero());
+		Assertions.assertEquals("14000000", restaurante.getId().getLocalizacao().getId().getCep());
+		Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, restaurante.getTipoCozinha());
+		Assertions.assertEquals(List.of(DiasEnum.TODOS).toString(), restaurante.getDiasFuncionamento());
+		Assertions.assertEquals("18:00 ate 23:00", restaurante.getHorarioFuncionamento());
+		Assertions.assertEquals(500, restaurante.getCapacidadeDePessoas());
+	}
+
+	@Test
+	public void deveRetornarStatus201_criaRestauranteEspecificaUmDiaETambemColocaTodosDias() throws Exception {
+		var request = new CriaRestauranteDTO(
+				"49.251.058/0001-05",
+				"Restaurante Teste",
+				localizacaoDefault(),
+				TipoCozinhaEnum.COMIDA_ARABE,
+				criaHorarioFuncionamento(List.of(DiasEnum.SEGUNDA_FEIRA, DiasEnum.TODOS), "18:00 ate 23:00"),
+				500
+		);
+		var objectMapper = this.objectMapper
+				.writer()
+				.withDefaultPrettyPrinter();
+		var jsonRequest = objectMapper.writeValueAsString(request);
+
+		this.mockMvc
+				.perform(MockMvcRequestBuilders.post(URL_RESTAURANTE)
+						.content(jsonRequest)
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isCreated()
+				);
+
+		var restauranteLocalizacao = this.repositoryRestauranteLocalizacao.findAll().get(0);
+		var restaurante = this.repositoryRestaurante.findAll().get(0);
+
+		Assertions.assertEquals(1, this.repositoryRestauranteLocalizacao.findAll().size());
+		Assertions.assertEquals(1, this.repositoryRestaurante.findAll().size());
+		Assertions.assertEquals("rua teste", restauranteLocalizacao.getId().getLogradouro());
+		Assertions.assertEquals(10, restauranteLocalizacao.getId().getNumero());
+		Assertions.assertEquals("14000000", restauranteLocalizacao.getId().getCep());
+		Assertions.assertEquals("bairro teste", restauranteLocalizacao.getBairro());
+		Assertions.assertEquals("cidade teste", restauranteLocalizacao.getCidade());
+		Assertions.assertEquals("SP", restauranteLocalizacao.getEstado());
+		Assertions.assertEquals("ap1122", restauranteLocalizacao.getComplemento());
+
+		Assertions.assertEquals("49251058000105", restaurante.getId().getCnpj());
+		Assertions.assertEquals("rua teste", restaurante.getId().getLocalizacao().getId().getLogradouro());
+		Assertions.assertEquals(10, restaurante.getId().getLocalizacao().getId().getNumero());
+		Assertions.assertEquals("14000000", restaurante.getId().getLocalizacao().getId().getCep());
+		Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, restaurante.getTipoCozinha());
+		Assertions.assertEquals(List.of(DiasEnum.TODOS).toString(), restaurante.getDiasFuncionamento());
+		Assertions.assertEquals("18:00 ate 23:00", restaurante.getHorarioFuncionamento());
+		Assertions.assertEquals(500, restaurante.getCapacidadeDePessoas());
+	}
+
+	@Test
+	public void deveRetornarStatus500_criaOutroRestauranteNaMesmaLocalizacaoDeUmRestauranteExistente() throws Exception {
+		var request = new CriaRestauranteDTO(
+				"49251058000105",
+				"Restaurante Teste",
+				localizacaoDefault(),
+				TipoCozinhaEnum.COMIDA_ARABE,
+				horarioFuncionamentoDefault(),
+				500
+		);
+
+		this.repositoryRestauranteLocalizacao.save(request.converteLocalizacao());
+		var restauranteSalvo = request.converte();
+		restauranteSalvo.getId().setCnpj("62080425000105");
+		this.repositoryRestaurante.save(restauranteSalvo);
+
+		var objectMapper = this.objectMapper
+				.writer()
+				.withDefaultPrettyPrinter();
+		var jsonRequest = objectMapper.writeValueAsString(request);
+
+		this.mockMvc
+				.perform(MockMvcRequestBuilders.post(URL_RESTAURANTE)
+						.content(jsonRequest)
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isInternalServerError()
+				);
+
+		var restauranteLocalizacao = this.repositoryRestauranteLocalizacao.findAll().get(0);
+		var restaurante = this.repositoryRestaurante.findAll().get(0);
+
+		Assertions.assertEquals(1, this.repositoryRestauranteLocalizacao.findAll().size());
+		Assertions.assertEquals(1, this.repositoryRestaurante.findAll().size());
+		Assertions.assertEquals("rua teste", restauranteLocalizacao.getId().getLogradouro());
+		Assertions.assertEquals(10, restauranteLocalizacao.getId().getNumero());
+		Assertions.assertEquals("14000000", restauranteLocalizacao.getId().getCep());
+		Assertions.assertEquals("bairro teste", restauranteLocalizacao.getBairro());
+		Assertions.assertEquals("cidade teste", restauranteLocalizacao.getCidade());
+		Assertions.assertEquals("SP", restauranteLocalizacao.getEstado());
+		Assertions.assertEquals("ap1122", restauranteLocalizacao.getComplemento());
+
+		Assertions.assertEquals("62080425000105", restaurante.getId().getCnpj());
+		Assertions.assertEquals("rua teste", restaurante.getId().getLocalizacao().getId().getLogradouro());
+		Assertions.assertEquals(10, restaurante.getId().getLocalizacao().getId().getNumero());
+		Assertions.assertEquals("14000000", restaurante.getId().getLocalizacao().getId().getCep());
+		Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, restaurante.getTipoCozinha());
+		Assertions.assertEquals(List.of(DiasEnum.TODOS).toString(), restaurante.getDiasFuncionamento());
+		Assertions.assertEquals("18:00 ate 23:00", restaurante.getHorarioFuncionamento());
+		Assertions.assertEquals(500, restaurante.getCapacidadeDePessoas());
 	}
 
 	@ParameterizedTest
@@ -74,7 +368,8 @@ class RestauranteCadastraTests {
 						.status()
 						.isBadRequest()
 				);
-		Assertions.assertEquals(0, this.repository.findAll().size());
+		Assertions.assertEquals(0, this.repositoryRestauranteLocalizacao.findAll().size());
+		Assertions.assertEquals(0, this.repositoryRestaurante.findAll().size());
 	}
 
 	@ParameterizedTest
@@ -99,7 +394,67 @@ class RestauranteCadastraTests {
 						.status()
 						.isBadRequest()
 				);
-		Assertions.assertEquals(0, this.repository.findAll().size());
+		Assertions.assertEquals(0, this.repositoryRestauranteLocalizacao.findAll().size());
+		Assertions.assertEquals(0, this.repositoryRestaurante.findAll().size());
+	}
+
+	@ParameterizedTest
+	@MethodSource("requestHorariosInvalidos")
+	public void deveRetornarStatus400_criaRestauranteComHorarioInvalido(String horario) throws Exception {
+		var request = new CriaRestauranteDTO(
+				"49.251.058/0001-05",
+				"Restaurante Teste",
+				localizacaoDefault(),
+				TipoCozinhaEnum.COMIDA_ARABE,
+				criaHorarioFuncionamento(List.of(DiasEnum.SEGUNDA_FEIRA), horario),
+				500
+		);
+		var objectMapper = this.objectMapper
+				.writer()
+				.withDefaultPrettyPrinter();
+		var jsonRequest = objectMapper.writeValueAsString(request);
+
+		var response = this.mockMvc
+				.perform(MockMvcRequestBuilders.post(URL_RESTAURANTE)
+						.content(jsonRequest)
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isBadRequest()
+				).andReturn();
+
+		Assertions.assertEquals(0, this.repositoryRestauranteLocalizacao.findAll().size());
+		Assertions.assertEquals(0, this.repositoryRestaurante.findAll().size());
+		Assertions.assertTrue(response.getResponse().getContentAsString().contains("Erro na definição dos horarios... Exemplo de como deve ser: 22:10. Segue o valor errado"));
+	}
+
+	@Test
+	public void deveRetornarStatus400_erroNaCriacaoDoRestauranteNaoDeveSalvarLocalizacaoRestaurante() throws Exception {
+		var request = new CriaRestauranteDTO(
+				"49251058000105",
+				"Restaurante Teste",
+				localizacaoDefault(),
+				TipoCozinhaEnum.COMIDA_ARABE,
+				criaHorarioFuncionamento(List.of(DiasEnum.SEGUNDA_FEIRA), "22:00 ate 26:00"),
+				500
+		);
+
+		var objectMapper = this.objectMapper
+				.writer()
+				.withDefaultPrettyPrinter();
+		var jsonRequest = objectMapper.writeValueAsString(request);
+
+		this.mockMvc
+				.perform(MockMvcRequestBuilders.post(URL_RESTAURANTE)
+						.content(jsonRequest)
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isBadRequest()
+				);
+
+		Assertions.assertEquals(0, this.repositoryRestauranteLocalizacao.findAll().size());
+		Assertions.assertEquals(0, this.repositoryRestaurante.findAll().size());
 	}
 
 	private static Stream<Arguments> requestValidandoCamposNullsOuVazios() {
@@ -251,6 +606,15 @@ class RestauranteCadastraTests {
 						TipoCozinhaEnum.COMIDA_JAPONESA, horarioFuncionamentoDefault(), 0),
 				Arguments.of("04623021000114", "Nome de teste", localizacaoDefault(),
 						TipoCozinhaEnum.COMIDA_JAPONESA, horarioFuncionamentoDefault(), 5001)
+		);
+	}
+
+	private static Stream<Arguments> requestHorariosInvalidos() {
+		return Stream.of(
+				Arguments.of("25:00 ate 23:00"),
+				Arguments.of("22:00 ate 25:00"),
+				Arguments.of("22:00 ate 22:00"),
+				Arguments.of("22:00 ate 21:00")
 		);
 	}
 
