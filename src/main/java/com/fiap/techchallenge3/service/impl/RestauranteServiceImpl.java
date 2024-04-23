@@ -47,10 +47,10 @@ public class RestauranteServiceImpl implements RestauranteService {
         return resultadosDaBusca
                 .stream()
                 .map(registro -> new ExibeBuscaRestauranteDTO(
-                                registro.getNome(),
+                        registro.getNome(),
                         registro.getLogradouro(),
-                        registro.getId().getNumeroEndereco(),
-                        registro.getId().getCep(),
+                        registro.getNumeroEndereco(),
+                        registro.getCep(),
                         registro.getBairro(),
                         registro.getCidade(),
                         registro.getEstado(),

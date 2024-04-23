@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fiap.techchallenge3.controller.exception.HorarioInvalidoException;
 import com.fiap.techchallenge3.model.DiasEnum;
 import com.fiap.techchallenge3.model.Restaurante;
-import com.fiap.techchallenge3.model.RestauranteId;
 import com.fiap.techchallenge3.model.TipoCozinhaEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -49,33 +48,25 @@ public record CriaRestauranteDTO(
 ) {
     public Restaurante converte() {
 		return Restaurante.builder()
-				.id(criaId())
+				.cnpj(this.cnpj
+						.replace(".", "")
+						.replace("/", "")
+						.replace("-", ""))
 				.nome(this.nome)
 				.tipoCozinha(this.tipoCozinha)
 				.diasFuncionamento(verificaDiasDeFuncionamento())
 				.horarioFuncionamento(verificaHorarioDeFuncionamento())
 				.capacidadeDePessoas(this.capacidadeDePessoas)
+				.cep(this.localizacao.cep()
+						.replace("-", ""))
 				.logradouro(this.localizacao.logradouro())
+				.numeroEndereco(this.localizacao.numero())
 				.bairro(this.localizacao.bairro())
 				.cidade(this.localizacao.cidade())
 				.estado(this.localizacao.estado())
 				.complemento(this.localizacao.complemento())
 				.build();
     }
-
-	private RestauranteId criaId() {
-		return RestauranteId.builder()
-				.cnpj(this.cnpj
-						.replace(".", "")
-						.replace("/", "")
-						.replace("-", "")
-				)
-				.cep(this.localizacao.cep()
-						.replace("-", "")
-				)
-				.numeroEndereco(this.localizacao.numero())
-				.build();
-	}
 
 	private String verificaDiasDeFuncionamento() {
 		if(this.horarioFuncionamento.diasAbertos().contains(DiasEnum.TODOS)) {
