@@ -14,15 +14,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Restaurante {
 
-    @EmbeddedId
-    private RestauranteId id;
+    @Id
+    private String cnpj;
     private String nome;
     @Enumerated(EnumType.STRING)
     private TipoCozinhaEnum tipoCozinha;
     private String diasFuncionamento;
     private String horarioFuncionamento;
     private int capacidadeDePessoas;
+    private String cep;
     private String logradouro;
+    private int numeroEndereco;
     private String bairro;
     private String cidade;
     private String estado;

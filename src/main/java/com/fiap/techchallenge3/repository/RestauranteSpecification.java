@@ -12,7 +12,7 @@ public class RestauranteSpecification {
 
     public static Specification<Restaurante> cep(String cep) {
         return (root, criteriaQuery, criteriaBuilder) ->
-                criteriaBuilder.like(root.get("id").get("cep"), "%" + cep + "%");
+                criteriaBuilder.like(root.get("cep"), "%" + cep + "%");
     }
 
     public static Specification<Restaurante> bairro(String bairro) {

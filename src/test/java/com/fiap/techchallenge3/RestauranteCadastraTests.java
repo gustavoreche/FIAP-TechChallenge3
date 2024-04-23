@@ -2,7 +2,6 @@ package com.fiap.techchallenge3;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiap.techchallenge3.model.DiasEnum;
-import com.fiap.techchallenge3.model.RestauranteId;
 import com.fiap.techchallenge3.model.TipoCozinhaEnum;
 import com.fiap.techchallenge3.model.dto.CriaRestauranteDTO;
 import com.fiap.techchallenge3.model.dto.EnderecoCompletoDTO;
@@ -79,13 +78,13 @@ class RestauranteCadastraTests {
 
 		Assertions.assertEquals(1, this.repositoryRestaurante.findAll().size());
 		Assertions.assertEquals("rua teste", restaurante.getLogradouro());
-		Assertions.assertEquals(10, restaurante.getId().getNumeroEndereco());
-		Assertions.assertEquals("14000000", restaurante.getId().getCep());
+		Assertions.assertEquals(10, restaurante.getNumeroEndereco());
+		Assertions.assertEquals("14000000", restaurante.getCep());
 		Assertions.assertEquals("bairro teste", restaurante.getBairro());
 		Assertions.assertEquals("cidade teste", restaurante.getCidade());
 		Assertions.assertEquals("SP", restaurante.getEstado());
 		Assertions.assertEquals("ap1122", restaurante.getComplemento());
-		Assertions.assertEquals("49251058000105", restaurante.getId().getCnpj());
+		Assertions.assertEquals("49251058000105", restaurante.getCnpj());
 		Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, restaurante.getTipoCozinha());
 		Assertions.assertEquals(List.of(DiasEnum.TODOS).toString(), restaurante.getDiasFuncionamento());
 		Assertions.assertEquals("18:00 ate 23:00", restaurante.getHorarioFuncionamento());
@@ -120,55 +119,17 @@ class RestauranteCadastraTests {
 
 		Assertions.assertEquals(1, this.repositoryRestaurante.findAll().size());
 		Assertions.assertEquals("rua teste", restaurante.getLogradouro());
-		Assertions.assertEquals(10, restaurante.getId().getNumeroEndereco());
-		Assertions.assertEquals("14000000", restaurante.getId().getCep());
+		Assertions.assertEquals(10, restaurante.getNumeroEndereco());
+		Assertions.assertEquals("14000000", restaurante.getCep());
 		Assertions.assertEquals("bairro teste", restaurante.getBairro());
 		Assertions.assertEquals("cidade teste", restaurante.getCidade());
 		Assertions.assertEquals("SP", restaurante.getEstado());
 		Assertions.assertEquals("ap1122", restaurante.getComplemento());
-		Assertions.assertEquals("49251058000105", restaurante.getId().getCnpj());
+		Assertions.assertEquals("49251058000105", restaurante.getCnpj());
 		Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, restaurante.getTipoCozinha());
 		Assertions.assertEquals(List.of(DiasEnum.SEGUNDA_FEIRA).toString(), restaurante.getDiasFuncionamento());
 		Assertions.assertEquals("24horas", restaurante.getHorarioFuncionamento());
 		Assertions.assertEquals(500, restaurante.getCapacidadeDePessoas());
-	}
-
-	@Test
-	public void deveRetornarStatus201_criaRestauranteComMesmoCpnjEmOutraLocalizacao() throws Exception {
-		var request = new CriaRestauranteDTO(
-				"49.251.058/0001-05",
-				"Restaurante Teste",
-				localizacaoDefault(),
-				TipoCozinhaEnum.COMIDA_ARABE,
-				horarioFuncionamentoDefault(),
-				500
-		);
-
-		var restauranteSalvo = request.converte();
-		restauranteSalvo.setId(
-				RestauranteId.builder()
-						.cnpj(restauranteSalvo.getId().getCnpj())
-						.cep("14000-000")
-						.numeroEndereco(12)
-						.build()
-		);
-		this.repositoryRestaurante.save(restauranteSalvo);
-
-		var objectMapper = this.objectMapper
-				.writer()
-				.withDefaultPrettyPrinter();
-		var jsonRequest = objectMapper.writeValueAsString(request);
-
-		this.mockMvc
-				.perform(MockMvcRequestBuilders.post(URL_RESTAURANTE)
-						.content(jsonRequest)
-						.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers
-						.status()
-						.isCreated()
-				);
-
-		Assertions.assertEquals(2, this.repositoryRestaurante.findAll().size());
 	}
 
 	@Test
@@ -199,13 +160,13 @@ class RestauranteCadastraTests {
 
 		Assertions.assertEquals(1, this.repositoryRestaurante.findAll().size());
 		Assertions.assertEquals("rua teste", restaurante.getLogradouro());
-		Assertions.assertEquals(10, restaurante.getId().getNumeroEndereco());
-		Assertions.assertEquals("14000000", restaurante.getId().getCep());
+		Assertions.assertEquals(10, restaurante.getNumeroEndereco());
+		Assertions.assertEquals("14000000", restaurante.getCep());
 		Assertions.assertEquals("bairro teste", restaurante.getBairro());
 		Assertions.assertEquals("cidade teste", restaurante.getCidade());
 		Assertions.assertEquals("SP", restaurante.getEstado());
 		Assertions.assertNull(restaurante.getComplemento());
-		Assertions.assertEquals("49251058000105", restaurante.getId().getCnpj());
+		Assertions.assertEquals("49251058000105", restaurante.getCnpj());
 		Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, restaurante.getTipoCozinha());
 		Assertions.assertEquals(List.of(DiasEnum.TODOS).toString(), restaurante.getDiasFuncionamento());
 		Assertions.assertEquals("18:00 ate 23:00", restaurante.getHorarioFuncionamento());
@@ -240,13 +201,13 @@ class RestauranteCadastraTests {
 
 		Assertions.assertEquals(1, this.repositoryRestaurante.findAll().size());
 		Assertions.assertEquals("rua teste", restaurante.getLogradouro());
-		Assertions.assertEquals(10, restaurante.getId().getNumeroEndereco());
-		Assertions.assertEquals("14000000", restaurante.getId().getCep());
+		Assertions.assertEquals(10, restaurante.getNumeroEndereco());
+		Assertions.assertEquals("14000000", restaurante.getCep());
 		Assertions.assertEquals("bairro teste", restaurante.getBairro());
 		Assertions.assertEquals("cidade teste", restaurante.getCidade());
 		Assertions.assertEquals("SP", restaurante.getEstado());
 		Assertions.assertEquals("ap1122", restaurante.getComplemento());
-		Assertions.assertEquals("49251058000105", restaurante.getId().getCnpj());
+		Assertions.assertEquals("49251058000105", restaurante.getCnpj());
 		Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, restaurante.getTipoCozinha());
 		Assertions.assertEquals(List.of(DiasEnum.TODOS).toString(), restaurante.getDiasFuncionamento());
 		Assertions.assertEquals("18:00 ate 23:00", restaurante.getHorarioFuncionamento());
