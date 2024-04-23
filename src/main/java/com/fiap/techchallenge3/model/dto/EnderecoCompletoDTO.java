@@ -1,12 +1,11 @@
 package com.fiap.techchallenge3.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fiap.techchallenge3.model.RestauranteLocalizacao;
-import com.fiap.techchallenge3.model.RestauranteLocalizacaoId;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
 import static com.fiap.techchallenge3.controller.LocalizacaoController.REGEX_CEP;
+import static com.fiap.techchallenge3.controller.RestauranteController.REGEX_ESTADO;
 
 public record EnderecoCompletoDTO(
 
@@ -38,29 +37,11 @@ public record EnderecoCompletoDTO(
 		String cidade,
 
 		@NotBlank(message = "O estado nao pode ser vazio")
-		@Pattern(regexp = "^\\w{2}$")
+		@Pattern(regexp = REGEX_ESTADO)
 		@JsonInclude(JsonInclude.Include.NON_NULL)
 		String estado,
 
 		@Size(min = 2, max = 30, message = "A cidade deve ter no mínimo 2 letras e no máximo 30 letras")
 		@JsonInclude(JsonInclude.Include.NON_NULL)
 		String complemento
-) {
-    public RestauranteLocalizacao converte() {
-		return RestauranteLocalizacao.builder()
-				.id(criaId())
-				.bairro(this.bairro)
-				.cidade(this.cidade)
-				.estado(this.estado)
-				.complemento(this.complemento)
-				.build();
-    }
-
-	private RestauranteLocalizacaoId criaId() {
-		return RestauranteLocalizacaoId.builder()
-				.logradouro(this.logradouro)
-				.numero(this.numero)
-				.cep(this.cep.replace("-", ""))
-				.build();
-	}
-}
+) {}

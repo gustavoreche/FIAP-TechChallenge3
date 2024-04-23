@@ -1,17 +1,23 @@
 package com.fiap.techchallenge3.controller;
 
+import com.fiap.techchallenge3.model.TipoCozinhaEnum;
 import com.fiap.techchallenge3.model.dto.CriaRestauranteDTO;
+import com.fiap.techchallenge3.model.dto.ExibeBuscaRestauranteDTO;
 import com.fiap.techchallenge3.service.RestauranteService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Objects;
+
+import static com.fiap.techchallenge3.controller.LocalizacaoController.REGEX_CEP;
 import static com.fiap.techchallenge3.controller.RestauranteController.URL_RESTAURANTE;
 
 @Tag(
@@ -22,6 +28,7 @@ import static com.fiap.techchallenge3.controller.RestauranteController.URL_RESTA
 @RequestMapping(URL_RESTAURANTE)
 public class RestauranteController {
 
+	public static final String REGEX_ESTADO = "^\\w{2}$";
 	public static final String URL_RESTAURANTE = "/restaurante";
 
 	private final RestauranteService service;
@@ -47,6 +54,41 @@ public class RestauranteController {
 		return ResponseEntity
 				.status(HttpStatus.CREATED)
 				.build();
+	}
+
+	@Operation(
+			summary = """
+					Serviço que busca os restaurantes. Veja os detalhes:
+					""",
+			description = """
+					Busque as informações pelos seguintes parâmetros:
+					
+						- nome (se não passar um nome, pesquisa por todos os restaurantes)
+						- localização (esse parâmetro contêm 4 itens, podendo ser informado, apenas um, dois, todos, ou nenhum. Se não passar algum parâmetro da localização, esse filtro não será levado em consideração)
+						- tipo de cozinha (se não passar um tipo de cozinha, pesquisa por todos os tipos de cozinha)
+						
+					Observação: Esse serviço irá trazer somente os 50 primeiros restaurantes encontrados, baseado nos filtros informados.
+					"""
+	)
+	@GetMapping
+	public ResponseEntity<List<ExibeBuscaRestauranteDTO>> busca(@RequestParam(required = false) final String nome,
+																@RequestParam(required = false) @Schema(example = "14012-456") @Pattern(regexp = REGEX_CEP) final String cep,
+																@RequestParam(required = false) final String bairro,
+																@RequestParam(required = false) final String cidade,
+																@RequestParam(required = false) @Pattern(regexp = REGEX_ESTADO) final String estado,
+																@RequestParam(required = false) final TipoCozinhaEnum tipoCozinha) {
+		var busca = this.service.busca(
+				nome,
+				cep,
+				bairro,
+				cidade,
+				estado,
+				tipoCozinha
+		);
+		var status = busca.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+		return ResponseEntity
+				.status(status)
+				.body(busca);
 	}
 
 }

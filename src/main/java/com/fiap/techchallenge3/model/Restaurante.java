@@ -22,4 +22,9 @@ public class Restaurante {
     private String diasFuncionamento;
     private String horarioFuncionamento;
     private int capacidadeDePessoas;
+    private String logradouro;
+    private String bairro;
+    private String cidade;
+    private String estado;
+    private String complemento;
 }

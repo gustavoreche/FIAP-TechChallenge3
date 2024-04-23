@@ -2,14 +2,15 @@ package com.fiap.techchallenge3.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fiap.techchallenge3.controller.exception.HorarioInvalidoException;
-import com.fiap.techchallenge3.model.*;
+import com.fiap.techchallenge3.model.DiasEnum;
+import com.fiap.techchallenge3.model.Restaurante;
+import com.fiap.techchallenge3.model.RestauranteId;
+import com.fiap.techchallenge3.model.TipoCozinhaEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.br.CNPJ;
-import org.springframework.cglib.core.Local;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -54,6 +55,11 @@ public record CriaRestauranteDTO(
 				.diasFuncionamento(verificaDiasDeFuncionamento())
 				.horarioFuncionamento(verificaHorarioDeFuncionamento())
 				.capacidadeDePessoas(this.capacidadeDePessoas)
+				.logradouro(this.localizacao.logradouro())
+				.bairro(this.localizacao.bairro())
+				.cidade(this.localizacao.cidade())
+				.estado(this.localizacao.estado())
+				.complemento(this.localizacao.complemento())
 				.build();
     }
 
@@ -64,7 +70,10 @@ public record CriaRestauranteDTO(
 						.replace("/", "")
 						.replace("-", "")
 				)
-				.localizacao(this.localizacao.converte())
+				.cep(this.localizacao.cep()
+						.replace("-", "")
+				)
+				.numeroEndereco(this.localizacao.numero())
 				.build();
 	}
 
@@ -93,7 +102,4 @@ public record CriaRestauranteDTO(
 		return this.horarioFuncionamento.horarioFuncionamento();
 	}
 
-	public RestauranteLocalizacao converteLocalizacao() {
-		return this.localizacao.converte();
-	}
 }
