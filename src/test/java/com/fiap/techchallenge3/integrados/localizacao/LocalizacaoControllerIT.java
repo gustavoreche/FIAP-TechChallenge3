@@ -1,8 +1,8 @@
-package com.fiap.techchallenge3;
+package com.fiap.techchallenge3.integrados.localizacao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fiap.techchallenge3.client.ViaCepClient;
-import com.fiap.techchallenge3.model.dto.LocalizacaoDTO;
+import com.fiap.techchallenge3.infrastructure.localizacao.client.ViaCepClient;
+import com.fiap.techchallenge3.infrastructure.localizacao.client.ViaCepResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -22,12 +22,12 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.stream.Stream;
 
-import static com.fiap.techchallenge3.controller.LocalizacaoController.URL_LOCALIZACAO_POR_CEP;
+import static com.fiap.techchallenge3.infrastructure.localizacao.controller.LocalizacaoController.URL_LOCALIZACAO_POR_CEP;
 
 @AutoConfigureMockMvc
 @SpringBootTest
 @TestInstance(Lifecycle.PER_CLASS)
-class LocalizacaoPorCepTests {
+class LocalizacaoControllerIT {
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -40,9 +40,10 @@ class LocalizacaoPorCepTests {
 	ViaCepClient client;
 
 	@Test
-	public void deveRetornarStatus200_cepExistente() throws Exception {
-		Mockito.when(this.client.getAddressByCep("14000000"))
-				.thenReturn(new LocalizacaoDTO(
+	public void localizacao_existe_deveRetornarStatus200() throws Exception {
+		// preparação
+		Mockito.when(this.client.pegaLocalizacao("14000000"))
+				.thenReturn(new ViaCepResponse(
 						"Avenida dos testes",
 						"14000-000",
 						"Bairro teste",
@@ -51,6 +52,7 @@ class LocalizacaoPorCepTests {
 					)
 				);
 
+		// execução e avaliação
 		var response = this.mockMvc
 				.perform(MockMvcRequestBuilders.get(URL_LOCALIZACAO_POR_CEP.replace("{cep}", "14000-000"))
 						.contentType(MediaType.APPLICATION_JSON))
@@ -61,8 +63,7 @@ class LocalizacaoPorCepTests {
 				.andReturn();
 		var responseAppString = response.getResponse().getContentAsString();
 		var responseApp = this.objectMapper
-				.readValue(responseAppString, LocalizacaoDTO.class);
-
+				.readValue(responseAppString, ViaCepResponse.class);
 		Assertions.assertEquals("Avenida dos testes", responseApp.logradouro());
 		Assertions.assertEquals("14000-000", responseApp.cep());
 		Assertions.assertEquals("Bairro teste", responseApp.bairro());
@@ -71,9 +72,10 @@ class LocalizacaoPorCepTests {
 	}
 
 	@Test
-	public void deveRetornarStatus500_cepNaoExistente() throws Exception {
-		Mockito.when(this.client.getAddressByCep("14000001"))
-				.thenReturn(new LocalizacaoDTO(
+	public void localizacao_naoExiste_deveRetornarStatus500() throws Exception {
+		// preparação
+		Mockito.when(this.client.pegaLocalizacao("14000001"))
+				.thenReturn(new ViaCepResponse(
 						null,
 						null,
 						null,
@@ -82,6 +84,7 @@ class LocalizacaoPorCepTests {
 						)
 				);
 
+		// execução e avaliação
 		var response = this.mockMvc
 				.perform(MockMvcRequestBuilders.get(URL_LOCALIZACAO_POR_CEP.replace("{cep}", "14000-001"))
 						.contentType(MediaType.APPLICATION_JSON))
@@ -91,13 +94,34 @@ class LocalizacaoPorCepTests {
 				)
 				.andReturn();
 		var responseAppString = response.getResponse().getContentAsString();
-
 		Assertions.assertEquals("ENDEREÇO NAO EXISTE!", responseAppString);
+	}
+
+	@Test
+	public void localizacao_apiRestIndisponivel_deveRetornarStatus500() throws Exception {
+		// preparação
+		Mockito.when(this.client.pegaLocalizacao("14000001"))
+				.thenThrow(
+						new RuntimeException("API REST Indisponível")
+				);
+
+		// execução e avaliação
+		var response = this.mockMvc
+				.perform(MockMvcRequestBuilders.get(URL_LOCALIZACAO_POR_CEP.replace("{cep}", "14000-001"))
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isInternalServerError()
+				)
+				.andReturn();
+		var responseAppString = response.getResponse().getContentAsString();
+		Assertions.assertEquals("API REST Indisponível", responseAppString);
 	}
 
 	@ParameterizedTest
 	@MethodSource("requestValidandoCampo")
-	public void deveRetornarStatus400_validacaoDoCampo(String cep) throws Exception {
+	public void validacaoDoCampo_deveRetornarStatus400(String cep) throws Exception {
+		// execução e avaliação
 		this.mockMvc
 				.perform(MockMvcRequestBuilders.get(URL_LOCALIZACAO_POR_CEP.replace("{cep}", cep))
 						.contentType(MediaType.APPLICATION_JSON))
@@ -108,6 +132,7 @@ class LocalizacaoPorCepTests {
 	}
 
 	private static Stream<Arguments> requestValidandoCampo() {
+		// preparação
 		return Stream.of(
 				Arguments.of("   "),
 				Arguments.of("a"),

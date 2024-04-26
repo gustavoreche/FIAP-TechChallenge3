@@ -1,24 +1,22 @@
-package com.fiap.techchallenge3.controller;
+package com.fiap.techchallenge3.infrastructure.restaurante.controller;
 
-import com.fiap.techchallenge3.model.TipoCozinhaEnum;
+import com.fiap.techchallenge3.infrastructure.restaurante.model.TipoCozinhaEnum;
 import com.fiap.techchallenge3.model.dto.CriaRestauranteDTO;
 import com.fiap.techchallenge3.model.dto.ExibeBuscaRestauranteDTO;
-import com.fiap.techchallenge3.service.RestauranteService;
+import com.fiap.techchallenge3.useCase.restaurante.RestauranteUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 
-import static com.fiap.techchallenge3.controller.LocalizacaoController.REGEX_CEP;
-import static com.fiap.techchallenge3.controller.RestauranteController.URL_RESTAURANTE;
+import static com.fiap.techchallenge3.infrastructure.localizacao.controller.LocalizacaoController.REGEX_CEP;
+import static com.fiap.techchallenge3.infrastructure.restaurante.controller.RestauranteController.URL_RESTAURANTE;
 
 @Tag(
 		name = "Restaurante",
@@ -31,9 +29,9 @@ public class RestauranteController {
 	public static final String REGEX_ESTADO = "^\\w{2}$";
 	public static final String URL_RESTAURANTE = "/restaurante";
 
-	private final RestauranteService service;
+	private final RestauranteUseCase service;
 
-	public RestauranteController(final RestauranteService service) {
+	public RestauranteController(final RestauranteUseCase service) {
 		this.service = service;
 	}
 

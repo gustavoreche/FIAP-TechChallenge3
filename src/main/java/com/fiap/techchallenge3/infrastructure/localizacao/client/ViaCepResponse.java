@@ -1,8 +1,8 @@
-package com.fiap.techchallenge3.model.dto;
+package com.fiap.techchallenge3.infrastructure.localizacao.client;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 
-public record LocalizacaoDTO(
+public record ViaCepResponse(
 
         String logradouro,
         String cep,

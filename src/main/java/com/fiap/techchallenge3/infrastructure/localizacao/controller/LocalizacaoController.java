@@ -1,7 +1,7 @@
-package com.fiap.techchallenge3.controller;
+package com.fiap.techchallenge3.infrastructure.localizacao.controller;
 
-import com.fiap.techchallenge3.model.dto.LocalizacaoDTO;
-import com.fiap.techchallenge3.service.LocalizacaoService;
+import com.fiap.techchallenge3.infrastructure.localizacao.controller.dto.LocalizacaoDTO;
+import com.fiap.techchallenge3.useCase.localizacao.LocalizacaoUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Pattern;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.fiap.techchallenge3.controller.LocalizacaoController.URL_LOCALIZACAO;
+import static com.fiap.techchallenge3.infrastructure.localizacao.controller.LocalizacaoController.URL_LOCALIZACAO;
 
 @Tag(
 		name = "Localização",
@@ -27,10 +27,10 @@ public class LocalizacaoController {
 	public static final String URL_LOCALIZACAO = "/localizacao";
 	public static final String URL_LOCALIZACAO_POR_CEP = URL_LOCALIZACAO.concat("/{cep}");
 
-	private final LocalizacaoService service;
+	private final LocalizacaoUseCase localizacaoUseCase;
 
-	public LocalizacaoController(final LocalizacaoService service) {
-		this.service = service;
+	public LocalizacaoController(final LocalizacaoUseCase localizacaoUseCase) {
+		this.localizacaoUseCase = localizacaoUseCase;
 	}
 
 	@Operation(
@@ -41,7 +41,9 @@ public class LocalizacaoController {
 													  @Pattern(regexp = REGEX_CEP) final String cep) {
 		return ResponseEntity
 				.status(HttpStatus.OK)
-				.body(this.service.buscaPorCep(cep));
+				.body(
+						new LocalizacaoDTO(this.localizacaoUseCase.buscaPorCep(cep))
+				);
 	}
 
 }

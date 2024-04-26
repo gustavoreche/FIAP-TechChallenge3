@@ -1,4 +1,4 @@
-package com.fiap.techchallenge3.controller;
+package com.fiap.techchallenge3.infrastructure;
 
 import com.fiap.techchallenge3.controller.exception.HorarioInvalidoException;
 import org.springframework.http.HttpStatus;

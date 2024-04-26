@@ -1,11 +1,11 @@
-package com.fiap.techchallenge3.service.impl;
+package com.fiap.techchallenge3.useCase.restaurante.impl;
 
-import com.fiap.techchallenge3.model.TipoCozinhaEnum;
+import com.fiap.techchallenge3.infrastructure.restaurante.repository.RestauranteRepository;
+import com.fiap.techchallenge3.infrastructure.restaurante.repository.RestauranteSpecification;
+import com.fiap.techchallenge3.infrastructure.restaurante.model.TipoCozinhaEnum;
 import com.fiap.techchallenge3.model.dto.CriaRestauranteDTO;
 import com.fiap.techchallenge3.model.dto.ExibeBuscaRestauranteDTO;
-import com.fiap.techchallenge3.repository.RestauranteRepository;
-import com.fiap.techchallenge3.repository.RestauranteSpecification;
-import com.fiap.techchallenge3.service.RestauranteService;
+import com.fiap.techchallenge3.useCase.restaurante.RestauranteUseCase;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -13,11 +13,11 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class RestauranteServiceImpl implements RestauranteService {
+public class RestauranteUseCaseImpl implements RestauranteUseCase {
 
     private final RestauranteRepository repositoryRestaurante;
 
-    public RestauranteServiceImpl(final RestauranteRepository repositoryRestaurante) {
+    public RestauranteUseCaseImpl(final RestauranteRepository repositoryRestaurante) {
         this.repositoryRestaurante = repositoryRestaurante;
     }
 

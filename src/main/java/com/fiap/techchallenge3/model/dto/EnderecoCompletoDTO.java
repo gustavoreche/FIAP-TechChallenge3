@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
-import static com.fiap.techchallenge3.controller.LocalizacaoController.REGEX_CEP;
-import static com.fiap.techchallenge3.controller.RestauranteController.REGEX_ESTADO;
+import static com.fiap.techchallenge3.infrastructure.localizacao.controller.LocalizacaoController.REGEX_CEP;
+import static com.fiap.techchallenge3.infrastructure.restaurante.controller.RestauranteController.REGEX_ESTADO;
 
 public record EnderecoCompletoDTO(
 

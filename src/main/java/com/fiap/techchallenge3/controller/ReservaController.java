@@ -1,5 +1,7 @@
 package com.fiap.techchallenge3.controller;
 
+import com.fiap.techchallenge3.model.StatusReservaEnum;
+import com.fiap.techchallenge3.model.dto.ExibeReservasPendentesDTO;
 import com.fiap.techchallenge3.model.dto.ReservaDTO;
 import com.fiap.techchallenge3.service.ReservaService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,15 +30,7 @@ public class ReservaController {
 	}
 
 	@Operation(
-			summary = "Serviço para realizar reserva no restaurante.",
-			description = """
-					DICA: Para não digitar toda a LOCALIZAÇÃO completa, o endpoint "/localizacao/{cep}"
-					fornece a maioria dos dados que são obrigatórios, tendo que ser preenchido somente
-					os campos abaixo:
-					
-						- número (número do endereço)
-						- complemento (opcional, se não tiver, não preencher).
-					"""
+			summary = "Serviço para atualizar o status da reserva no restaurante."
 	)
 	@PostMapping("/{cnpj}")
 	public ResponseEntity<Void> reserva(@PathVariable("cnpj") final String cnpj, @RequestBody @Valid final ReservaDTO dadosReserva) {
@@ -46,39 +40,25 @@ public class ReservaController {
 				.build();
 	}
 
+	@Operation(
+			summary = "Serviço para realizar reserva no restaurante."
+	)
+	@PutMapping("/atualiza/{cnpj}")
+	public ResponseEntity<Void> atualizaReserva(@PathVariable("cnpj") final String cnpj, @RequestParam @Valid final StatusReservaEnum status) {
+		this.service.atualizaReserva(cnpj, status);
+		return ResponseEntity
+				.status(HttpStatus.OK)
+				.build();
+	}
+
 //	@Operation(
-//			summary = """
-//					Serviço que busca os restaurantes. Veja os detalhes:
-//					""",
-//			description = """
-//					Busque as informações pelos seguintes parâmetros:
-//
-//						- nome (se não passar um nome, pesquisa por todos os restaurantes)
-//						- localização (esse parâmetro contêm 4 itens, podendo ser informado, apenas um, dois, todos, ou nenhum. Se não passar algum parâmetro da localização, esse filtro não será levado em consideração)
-//						- tipo de cozinha (se não passar um tipo de cozinha, pesquisa por todos os tipos de cozinha)
-//
-//					Observação: Esse serviço irá trazer somente os 50 primeiros restaurantes encontrados, baseado nos filtros informados.
-//					"""
+//			summary = "Serviço para listar reservas PENDENTES do dia no restaurante."
 //	)
-//	@GetMapping
-//	public ResponseEntity<List<ExibeBuscaRestauranteDTO>> busca(@RequestParam(required = false) final String nome,
-//																@RequestParam(required = false) @Schema(example = "14012-456") @Pattern(regexp = REGEX_CEP) final String cep,
-//																@RequestParam(required = false) final String bairro,
-//																@RequestParam(required = false) final String cidade,
-//																@RequestParam(required = false) @Pattern(regexp = REGEX_ESTADO) final String estado,
-//																@RequestParam(required = false) final TipoCozinhaEnum tipoCozinha) {
-//		var busca = this.service.busca(
-//				nome,
-//				cep,
-//				bairro,
-//				cidade,
-//				estado,
-//				tipoCozinha
-//		);
-//		var status = busca.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+//	@GetMapping("/{cnpj}")
+//	public ResponseEntity<ExibeReservasPendentesDTO> buscaReservasPendentesDoDia(@PathVariable("cnpj") final String cnpj) {
 //		return ResponseEntity
-//				.status(status)
-//				.body(busca);
+//				.status(HttpStatus.OK)
+//				.build(this.service.buscaReservasPendentesDoDia(cnpj));
 //	}
 
 }
