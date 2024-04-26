@@ -1,12 +1,12 @@
-package com.fiap.techchallenge3.service;
+package com.fiap.techchallenge3.useCase.restaurante;
 
-import com.fiap.techchallenge3.model.TipoCozinhaEnum;
+import com.fiap.techchallenge3.infrastructure.restaurante.model.TipoCozinhaEnum;
 import com.fiap.techchallenge3.model.dto.CriaRestauranteDTO;
 import com.fiap.techchallenge3.model.dto.ExibeBuscaRestauranteDTO;
 
 import java.util.List;
 
-public interface RestauranteService {
+public interface RestauranteUseCase {
 
     void cadastra(CriaRestauranteDTO dadosRestaurante);
     List<ExibeBuscaRestauranteDTO> busca(String nome,

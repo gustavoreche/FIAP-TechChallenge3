@@ -1,4 +1,4 @@
-package com.fiap.techchallenge3.model;
+package com.fiap.techchallenge3.infrastructure.restaurante.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

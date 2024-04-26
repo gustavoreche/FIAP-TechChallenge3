@@ -1,6 +1,6 @@
 package com.fiap.techchallenge3.model.dto;
 
-import com.fiap.techchallenge3.model.TipoCozinhaEnum;
+import com.fiap.techchallenge3.infrastructure.restaurante.model.TipoCozinhaEnum;
 
 public record ExibeBuscaRestauranteDTO(
 

@@ -2,11 +2,11 @@ package com.fiap.techchallenge3;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiap.techchallenge3.model.DiasEnum;
-import com.fiap.techchallenge3.model.TipoCozinhaEnum;
+import com.fiap.techchallenge3.infrastructure.restaurante.model.TipoCozinhaEnum;
 import com.fiap.techchallenge3.model.dto.CriaRestauranteDTO;
 import com.fiap.techchallenge3.model.dto.EnderecoCompletoDTO;
 import com.fiap.techchallenge3.model.dto.HorarioDeFuncionamentoDTO;
-import com.fiap.techchallenge3.repository.RestauranteRepository;
+import com.fiap.techchallenge3.infrastructure.restaurante.repository.RestauranteRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,7 +23,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.fiap.techchallenge3.controller.RestauranteController.URL_RESTAURANTE;
+import static com.fiap.techchallenge3.infrastructure.restaurante.controller.RestauranteController.URL_RESTAURANTE;
 
 @AutoConfigureMockMvc
 @SpringBootTest
