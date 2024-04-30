@@ -12,7 +12,7 @@ public record LocalizacaoDTO(
     public LocalizacaoDTO(Localizacao localizacao) {
         this(
                 localizacao.logradouro(),
-                localizacao.cep(),
+                localizacao.cep().numero(),
                 localizacao.bairro(),
                 localizacao.cidade(),
                 localizacao.estado()

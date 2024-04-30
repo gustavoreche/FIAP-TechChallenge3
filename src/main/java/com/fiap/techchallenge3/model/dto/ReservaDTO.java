@@ -1,11 +1,10 @@
 package com.fiap.techchallenge3.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fiap.techchallenge3.model.DiasEnum;
+import com.fiap.techchallenge3.domain.restaurante.model.DiasEnum;
 import com.fiap.techchallenge3.model.Reserva;
 import com.fiap.techchallenge3.model.StatusReservaEnum;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;

@@ -1,5 +1,6 @@
 package com.fiap.techchallenge3.useCase.localizacao.impl;
 
+import com.fiap.techchallenge3.domain.localizacao.model.Cep;
 import com.fiap.techchallenge3.domain.localizacao.model.Localizacao;
 import com.fiap.techchallenge3.domain.localizacao.service.LocalizacaoAdapter;
 import com.fiap.techchallenge3.useCase.localizacao.LocalizacaoUseCase;
@@ -16,17 +17,14 @@ public class LocalizacaoUseCaseImpl implements LocalizacaoUseCase {
 
     @Override
     public Localizacao buscaPorCep(final String cep) {
+        var cepObject = new Cep(cep);
         var viaCepResponse = this.adapter.pegaLocalizacao(cep.replace("-", ""));
-        var localizacao = new Localizacao(
+        return new Localizacao(
                 viaCepResponse.logradouro(),
-                viaCepResponse.cep(),
+                cepObject,
                 viaCepResponse.bairro(),
                 viaCepResponse.cidade(),
                 viaCepResponse.estado()
         );
-        if(localizacao.naoExiste()) {
-            throw new RuntimeException("ENDEREÇO NAO EXISTE!");
-        }
-        return localizacao;
     }
 }

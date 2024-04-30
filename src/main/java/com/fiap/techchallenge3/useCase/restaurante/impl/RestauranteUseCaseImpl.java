@@ -1,30 +1,81 @@
 package com.fiap.techchallenge3.useCase.restaurante.impl;
 
+import com.fiap.techchallenge3.domain.localizacao.model.Cep;
+import com.fiap.techchallenge3.domain.localizacao.model.Localizacao;
+import com.fiap.techchallenge3.domain.restaurante.model.HorarioDeFuncionamento;
+import com.fiap.techchallenge3.domain.restaurante.model.LocalizacaoRestaurante;
+import com.fiap.techchallenge3.domain.restaurante.model.Restaurante;
+import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
+import com.fiap.techchallenge3.infrastructure.restaurante.model.RestauranteEntity;
 import com.fiap.techchallenge3.infrastructure.restaurante.repository.RestauranteRepository;
-import com.fiap.techchallenge3.infrastructure.restaurante.repository.RestauranteSpecification;
-import com.fiap.techchallenge3.infrastructure.restaurante.model.TipoCozinhaEnum;
-import com.fiap.techchallenge3.model.dto.CriaRestauranteDTO;
+import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.CriaRestauranteDTO;
 import com.fiap.techchallenge3.model.dto.ExibeBuscaRestauranteDTO;
 import com.fiap.techchallenge3.useCase.restaurante.RestauranteUseCase;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class RestauranteUseCaseImpl implements RestauranteUseCase {
 
-    private final RestauranteRepository repositoryRestaurante;
+    private final RestauranteRepository repository;
 
-    public RestauranteUseCaseImpl(final RestauranteRepository repositoryRestaurante) {
-        this.repositoryRestaurante = repositoryRestaurante;
+    public RestauranteUseCaseImpl(final RestauranteRepository repository) {
+        this.repository = repository;
     }
 
 
     @Override
     public void cadastra(final CriaRestauranteDTO dadosRestaurante) {
-        this.repositoryRestaurante.save(dadosRestaurante.converte());
+        var cep = new Cep(
+                dadosRestaurante.localizacao().cep()
+        );
+        var localizacao = new Localizacao(
+                dadosRestaurante.localizacao().logradouro(),
+                cep,
+                dadosRestaurante.localizacao().bairro(),
+                dadosRestaurante.localizacao().cidade(),
+                dadosRestaurante.localizacao().estado()
+        );
+        var localizacaoRestaurante = new LocalizacaoRestaurante(
+                localizacao,
+                dadosRestaurante.localizacao().numero(),
+                dadosRestaurante.localizacao().complemento()
+        );
+        var horarioDeFuncionamento = new HorarioDeFuncionamento(
+                dadosRestaurante.horarioFuncionamento().diasAbertos(),
+                dadosRestaurante.horarioFuncionamento().horarioFuncionamento()
+        );
+        var restaurante = new Restaurante(
+                dadosRestaurante.cnpj(),
+                dadosRestaurante.nome(),
+                localizacaoRestaurante,
+                dadosRestaurante.tipoCozinha(),
+                horarioDeFuncionamento,
+                dadosRestaurante.capacidadeDePessoas()
+        );
+
+        var restauranteEntity = new RestauranteEntity(
+                restaurante.cnpj()
+                        .replace(".", "")
+                        .replace("/", "")
+                        .replace("-", ""),
+                restaurante.nome(),
+                restaurante.tipoCozinha(),
+                restaurante.funcionamento().diasAbertos().toString(),
+                restaurante.funcionamento().horarioFuncionamento(),
+                restaurante.capacidadeDePessoas(),
+                restaurante.localizacaoCompleta().localizacao().cep().numero()
+                        .replace("-", ""),
+                restaurante.localizacaoCompleta().localizacao().logradouro(),
+                restaurante.localizacaoCompleta().numero(),
+                restaurante.localizacaoCompleta().localizacao().bairro(),
+                restaurante.localizacaoCompleta().localizacao().cidade(),
+                restaurante.localizacaoCompleta().localizacao().estado(),
+                restaurante.localizacaoCompleta().complemento()
+        );
+
+        this.repository.save(restauranteEntity);
     }
 
     @Override
@@ -34,33 +85,34 @@ public class RestauranteUseCaseImpl implements RestauranteUseCase {
                                                 String cidade,
                                                 String estado,
                                                 TipoCozinhaEnum tipoCozinha) {
-        var resultadosDaBusca = this.repositoryRestaurante.findAll(
-                Specification
-                        .where(RestauranteSpecification.nome(Objects.isNull(nome) ? "" : nome))
-                        .and(RestauranteSpecification.cep(Objects.isNull(cep) ? "" : cep.replace("-", "")))
-                        .and(RestauranteSpecification.bairro(Objects.isNull(bairro) ? "" : bairro))
-                        .and(RestauranteSpecification.cidade(Objects.isNull(cidade) ? "" : cidade))
-                        .and(RestauranteSpecification.estado(Objects.isNull(estado) ? "" : estado))
-                        .and(RestauranteSpecification.tipoCozinha(Objects.isNull(tipoCozinha) ? "" : tipoCozinha.name())
-                        )
-        );
-        return resultadosDaBusca
-                .stream()
-                .map(registro -> new ExibeBuscaRestauranteDTO(
-                        registro.getNome(),
-                        registro.getLogradouro(),
-                        registro.getNumeroEndereco(),
-                        registro.getCep(),
-                        registro.getBairro(),
-                        registro.getCidade(),
-                        registro.getEstado(),
-                        registro.getComplemento(),
-                        registro.getTipoCozinha(),
-                        registro.getDiasFuncionamento(),
-                        registro.getHorarioFuncionamento(),
-                        registro.getCapacidadeDePessoas())
-                )
-                .toList();
+//        var resultadosDaBusca = this.repositoryRestaurante.findAll(
+//                Specification
+//                        .where(RestauranteSpecification.nome(Objects.isNull(nome) ? "" : nome))
+//                        .and(RestauranteSpecification.cep(Objects.isNull(cep) ? "" : cep.replace("-", "")))
+//                        .and(RestauranteSpecification.bairro(Objects.isNull(bairro) ? "" : bairro))
+//                        .and(RestauranteSpecification.cidade(Objects.isNull(cidade) ? "" : cidade))
+//                        .and(RestauranteSpecification.estado(Objects.isNull(estado) ? "" : estado))
+//                        .and(RestauranteSpecification.tipoCozinha(Objects.isNull(tipoCozinha) ? "" : tipoCozinha.name())
+//                        )
+//        );
+//        return resultadosDaBusca
+//                .stream()
+//                .map(registro -> new ExibeBuscaRestauranteDTO(
+//                        registro.getNome(),
+//                        registro.getLogradouro(),
+//                        registro.getNumeroEndereco(),
+//                        registro.getCep(),
+//                        registro.getBairro(),
+//                        registro.getCidade(),
+//                        registro.getEstado(),
+//                        registro.getComplemento(),
+//                        registro.getTipoCozinha(),
+//                        registro.getDiasFuncionamento(),
+//                        registro.getHorarioFuncionamento(),
+//                        registro.getCapacidadeDePessoas())
+//                )
+//                .toList();
+        return null;
     }
 
 }

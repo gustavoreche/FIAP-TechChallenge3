@@ -1,4 +1,4 @@
-package com.fiap.techchallenge3.model;
+package com.fiap.techchallenge3.domain.restaurante.model;
 
 import lombok.Getter;
 
