@@ -91,11 +91,11 @@ class LocalizacaoControllerIT {
 						.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(MockMvcResultMatchers
 						.status()
-						.isInternalServerError()
+						.isBadRequest()
 				)
 				.andReturn();
 		var responseAppString = response.getResponse().getContentAsString();
-		Assertions.assertEquals("ENDEREÇO NAO EXISTE!", responseAppString);
+		Assertions.assertEquals("LOGRADOURO NAO PODE SER NULO OU VAZIO!", responseAppString);
 	}
 
 	@Test

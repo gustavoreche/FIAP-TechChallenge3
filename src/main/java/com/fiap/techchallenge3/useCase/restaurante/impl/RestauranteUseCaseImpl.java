@@ -6,14 +6,15 @@ import com.fiap.techchallenge3.domain.restaurante.model.HorarioDeFuncionamento;
 import com.fiap.techchallenge3.domain.restaurante.model.LocalizacaoRestaurante;
 import com.fiap.techchallenge3.domain.restaurante.model.Restaurante;
 import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
+import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.CriaRestauranteDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.model.RestauranteEntity;
 import com.fiap.techchallenge3.infrastructure.restaurante.repository.RestauranteRepository;
-import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.CriaRestauranteDTO;
 import com.fiap.techchallenge3.model.dto.ExibeBuscaRestauranteDTO;
 import com.fiap.techchallenge3.useCase.restaurante.RestauranteUseCase;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class RestauranteUseCaseImpl implements RestauranteUseCase {
@@ -28,7 +29,7 @@ public class RestauranteUseCaseImpl implements RestauranteUseCase {
     @Override
     public void cadastra(final CriaRestauranteDTO dadosRestaurante) {
         var cep = new Cep(
-                dadosRestaurante.localizacao().cep()
+                Objects.isNull(dadosRestaurante.localizacao()) ? null : dadosRestaurante.localizacao().cep()
         );
         var localizacao = new Localizacao(
                 dadosRestaurante.localizacao().logradouro(),
@@ -43,8 +44,8 @@ public class RestauranteUseCaseImpl implements RestauranteUseCase {
                 dadosRestaurante.localizacao().complemento()
         );
         var horarioDeFuncionamento = new HorarioDeFuncionamento(
-                dadosRestaurante.horarioFuncionamento().diasAbertos(),
-                dadosRestaurante.horarioFuncionamento().horarioFuncionamento()
+                Objects.isNull(dadosRestaurante.horarioFuncionamento()) ? null : dadosRestaurante.horarioFuncionamento().diasAbertos(),
+                Objects.isNull(dadosRestaurante.horarioFuncionamento()) ? null : dadosRestaurante.horarioFuncionamento().horarioFuncionamento()
         );
         var restaurante = new Restaurante(
                 dadosRestaurante.cnpj(),

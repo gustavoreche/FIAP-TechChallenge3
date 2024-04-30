@@ -1,4 +1,4 @@
-package com.fiap.techchallenge3;
+package com.fiap.techchallenge3.integrados.restaurante;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiap.techchallenge3.domain.restaurante.model.DiasEnum;
@@ -24,11 +24,12 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.fiap.techchallenge3.infrastructure.restaurante.controller.RestauranteController.URL_RESTAURANTE;
+import static com.fiap.techchallenge3.utils.RestauranteUtils.*;
 
 @AutoConfigureMockMvc
 @SpringBootTest
 @TestInstance(Lifecycle.PER_CLASS)
-class RestauranteCadastraTests {
+class RestauranteControllerIT {
 
     @Autowired
     private MockMvc mockMvc;
@@ -51,7 +52,7 @@ class RestauranteCadastraTests {
 
 
 	@Test
-	public void deveRetornarStatus201_criaRestaurante() throws Exception {
+	public void restaurante_deveRetornar201_salvaNaBaseDeDados() throws Exception {
 		var request = new CriaRestauranteDTO(
 				"49.251.058/0001-05",
 				"Restaurante Teste",
@@ -92,7 +93,7 @@ class RestauranteCadastraTests {
 	}
 
 	@Test
-	public void deveRetornarStatus201_criaRestauranteFuncionamento24horas() throws Exception {
+	public void restaurante_deveRetornar201_funcionamento24horas_salvaNaBaseDeDados() throws Exception {
 		var request = new CriaRestauranteDTO(
 				"49.251.058/0001-05",
 				"Restaurante Teste",
@@ -133,7 +134,7 @@ class RestauranteCadastraTests {
 	}
 
 	@Test
-	public void deveRetornarStatus201_criaRestauranteSemComplemento() throws Exception {
+	public void restaurante_deveRetornar201_semComplemento_salvaNaBaseDeDados() throws Exception {
 		var request = new CriaRestauranteDTO(
 				"49251058000105",
 				"Restaurante Teste",
@@ -174,7 +175,7 @@ class RestauranteCadastraTests {
 	}
 
 	@Test
-	public void deveRetornarStatus201_criaRestauranteEspecificaUmDiaETambemColocaTodosDias() throws Exception {
+	public void restaurante_deveRetornar201_especificaUmDiaETambemColocaTodosDias_salvaNaBaseDeDados() throws Exception {
 		var request = new CriaRestauranteDTO(
 				"49.251.058/0001-05",
 				"Restaurante Teste",
@@ -215,38 +216,13 @@ class RestauranteCadastraTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("requestValidandoCamposNullsOuVazios")
-	public void deveRetornarStatus400_validacoesDosCamposNullsOuVazios(String cnpj,
-																	   String nome,
-																	   EnderecoCompletoDTO localizacao,
-																	   TipoCozinhaEnum tipoCozinha,
-																	   HorarioDeFuncionamentoDTO horarioFuncionamento,
-																	   Integer capacidadeDePessoas) throws Exception {
-		var request = new CriaRestauranteDTO(cnpj, nome, localizacao, tipoCozinha, horarioFuncionamento, capacidadeDePessoas);
-		var objectMapper = this.objectMapper
-				.writer()
-				.withDefaultPrettyPrinter();
-		var jsonRequest = objectMapper.writeValueAsString(request);
-
-		this.mockMvc
-				.perform(MockMvcRequestBuilders.post(URL_RESTAURANTE)
-						.content(jsonRequest)
-						.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers
-						.status()
-						.isBadRequest()
-				);
-		Assertions.assertEquals(0, this.repositoryRestaurante.findAll().size());
-	}
-
-	@ParameterizedTest
 	@MethodSource("requestValidandoCampos")
-	public void deveRetornarStatus400_validacoesDosCampos(String cnpj,
-														  String nome,
-														  EnderecoCompletoDTO localizacao,
-														  TipoCozinhaEnum tipoCozinha,
-														  HorarioDeFuncionamentoDTO horarioFuncionamento,
-														  Integer capacidadeDePessoas) throws Exception {
+	public void restaurante_deveRetornar400_camposInvalidos_naoSalvaNaBaseDeDados(String cnpj,
+																				  String nome,
+																				  EnderecoCompletoDTO localizacao,
+																				  TipoCozinhaEnum tipoCozinha,
+																				  HorarioDeFuncionamentoDTO horarioFuncionamento,
+																				  Integer capacidadeDePessoas) throws Exception {
 		var request = new CriaRestauranteDTO(cnpj, nome, localizacao, tipoCozinha, horarioFuncionamento, capacidadeDePessoas);
 		var objectMapper = this.objectMapper
 				.writer()
@@ -266,7 +242,7 @@ class RestauranteCadastraTests {
 
 	@ParameterizedTest
 	@MethodSource("requestHorariosInvalidos")
-	public void deveRetornarStatus400_criaRestauranteComHorarioInvalido(String horario) throws Exception {
+	public void restaurante_horarioInvalido_naoSalvaNaBaseDeDados(String horario) throws Exception {
 		var request = new CriaRestauranteDTO(
 				"49.251.058/0001-05",
 				"Restaurante Teste",
@@ -293,35 +269,7 @@ class RestauranteCadastraTests {
 		Assertions.assertTrue(response.getResponse().getContentAsString().contains("Erro na definição dos horarios... Exemplo de como deve ser: 22:10. Segue o valor errado"));
 	}
 
-	@Test
-	public void deveRetornarStatus400_erroNaCriacaoDoRestauranteNaoDeveSalvarLocalizacaoRestaurante() throws Exception {
-		var request = new CriaRestauranteDTO(
-				"49251058000105",
-				"Restaurante Teste",
-				localizacaoDefault(),
-				TipoCozinhaEnum.COMIDA_ARABE,
-				criaHorarioFuncionamento(List.of(DiasEnum.SEGUNDA_FEIRA), "22:00 ate 26:00"),
-				500
-		);
-
-		var objectMapper = this.objectMapper
-				.writer()
-				.withDefaultPrettyPrinter();
-		var jsonRequest = objectMapper.writeValueAsString(request);
-
-		this.mockMvc
-				.perform(MockMvcRequestBuilders.post(URL_RESTAURANTE)
-						.content(jsonRequest)
-						.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers
-						.status()
-						.isBadRequest()
-				);
-
-		Assertions.assertEquals(0, this.repositoryRestaurante.findAll().size());
-	}
-
-	private static Stream<Arguments> requestValidandoCamposNullsOuVazios() {
+	private static Stream<Arguments> requestValidandoCampos() {
 		return Stream.of(
 				Arguments.of(null, "Nome de teste", localizacaoDefault(),
 						TipoCozinhaEnum.COMIDA_JAPONESA, horarioFuncionamentoDefault(), 10),
@@ -357,57 +305,8 @@ class RestauranteCadastraTests {
 						TipoCozinhaEnum.COMIDA_JAPONESA, horarioFuncionamentoDefault(), null),
 				Arguments.of(null, null, null, null, null, null),
 				Arguments.of("", "", localizacaoDefault(),
-						TipoCozinhaEnum.COMIDA_JAPONESA, horarioFuncionamentoDefault(), 10)
-		);
-	}
+						TipoCozinhaEnum.COMIDA_JAPONESA, horarioFuncionamentoDefault(), 10),
 
-	private static EnderecoCompletoDTO localizacaoDefault() {
-		return new EnderecoCompletoDTO(
-				"rua teste",
-				10,
-				"14000-000",
-				"bairro teste",
-				"cidade teste",
-				"SP",
-				"ap1122"
-		);
-	}
-
-	private static EnderecoCompletoDTO criaLocalizacao(String logradouro,
-													   Integer numero,
-													   String cep,
-													   String bairro,
-													   String cidade,
-													   String estado,
-													   String complemento) {
-		return new EnderecoCompletoDTO(
-				logradouro,
-				numero,
-				cep,
-				bairro,
-				cidade,
-				estado,
-				complemento
-		);
-	}
-
-	private static HorarioDeFuncionamentoDTO horarioFuncionamentoDefault() {
-		return new HorarioDeFuncionamentoDTO(
-				List.of(DiasEnum.TODOS),
-				"18:00 ate 23:00"
-		);
-	}
-
-	private static HorarioDeFuncionamentoDTO criaHorarioFuncionamento(List<DiasEnum> diasAbertos,
-																	  String horarioFuncionamento) {
-		return new HorarioDeFuncionamentoDTO(
-				diasAbertos,
-				horarioFuncionamento
-		);
-	}
-
-	private static Stream<Arguments> requestValidandoCampos() {
-		return Stream.of(
 				Arguments.of(" ", "Nome de teste", localizacaoDefault(),
 						TipoCozinhaEnum.COMIDA_JAPONESA, horarioFuncionamentoDefault(), 10),
 				Arguments.of("aa", "Nome de teste", localizacaoDefault(),
