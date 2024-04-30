@@ -1,4 +1,4 @@
-package com.fiap.techchallenge3.model.dto;
+package com.fiap.techchallenge3.infrastructure.restaurante.controller.dto;
 
 import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
 

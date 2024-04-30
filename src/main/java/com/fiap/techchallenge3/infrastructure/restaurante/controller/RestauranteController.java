@@ -2,20 +2,18 @@ package com.fiap.techchallenge3.infrastructure.restaurante.controller;
 
 import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.CriaRestauranteDTO;
-import com.fiap.techchallenge3.model.dto.ExibeBuscaRestauranteDTO;
+import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.ExibeBuscaRestauranteDTO;
 import com.fiap.techchallenge3.useCase.restaurante.RestauranteUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.fiap.techchallenge3.infrastructure.localizacao.controller.LocalizacaoController.REGEX_CEP;
 import static com.fiap.techchallenge3.infrastructure.restaurante.controller.RestauranteController.URL_RESTAURANTE;
 
 @Tag(
@@ -26,7 +24,6 @@ import static com.fiap.techchallenge3.infrastructure.restaurante.controller.Rest
 @RequestMapping(URL_RESTAURANTE)
 public class RestauranteController {
 
-	public static final String REGEX_ESTADO = "^\\w{2}$";
 	public static final String URL_RESTAURANTE = "/restaurante";
 
 	private final RestauranteUseCase service;
@@ -65,15 +62,14 @@ public class RestauranteController {
 						- localização (esse parâmetro contêm 4 itens, podendo ser informado, apenas um, dois, todos, ou nenhum. Se não passar algum parâmetro da localização, esse filtro não será levado em consideração)
 						- tipo de cozinha (se não passar um tipo de cozinha, pesquisa por todos os tipos de cozinha)
 						
-					Observação: Esse serviço irá trazer somente os 50 primeiros restaurantes encontrados, baseado nos filtros informados.
 					"""
 	)
 	@GetMapping
 	public ResponseEntity<List<ExibeBuscaRestauranteDTO>> busca(@RequestParam(required = false) final String nome,
-																@RequestParam(required = false) @Schema(example = "14012-456") @Pattern(regexp = REGEX_CEP) final String cep,
+																@RequestParam(required = false) @Schema(example = "14012-456") final String cep,
 																@RequestParam(required = false) final String bairro,
 																@RequestParam(required = false) final String cidade,
-																@RequestParam(required = false) @Pattern(regexp = REGEX_ESTADO) final String estado,
+																@RequestParam(required = false) final String estado,
 																@RequestParam(required = false) final TipoCozinhaEnum tipoCozinha) {
 		var busca = this.service.busca(
 				nome,

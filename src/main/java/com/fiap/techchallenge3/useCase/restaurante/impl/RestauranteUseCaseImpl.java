@@ -2,15 +2,14 @@ package com.fiap.techchallenge3.useCase.restaurante.impl;
 
 import com.fiap.techchallenge3.domain.localizacao.model.Cep;
 import com.fiap.techchallenge3.domain.localizacao.model.Localizacao;
-import com.fiap.techchallenge3.domain.restaurante.model.HorarioDeFuncionamento;
-import com.fiap.techchallenge3.domain.restaurante.model.LocalizacaoRestaurante;
-import com.fiap.techchallenge3.domain.restaurante.model.Restaurante;
-import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
+import com.fiap.techchallenge3.domain.restaurante.model.*;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.CriaRestauranteDTO;
+import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.ExibeBuscaRestauranteDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.model.RestauranteEntity;
 import com.fiap.techchallenge3.infrastructure.restaurante.repository.RestauranteRepository;
-import com.fiap.techchallenge3.model.dto.ExibeBuscaRestauranteDTO;
+import com.fiap.techchallenge3.infrastructure.restaurante.repository.RestauranteSpecification;
 import com.fiap.techchallenge3.useCase.restaurante.RestauranteUseCase;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -86,34 +85,41 @@ public class RestauranteUseCaseImpl implements RestauranteUseCase {
                                                 String cidade,
                                                 String estado,
                                                 TipoCozinhaEnum tipoCozinha) {
-//        var resultadosDaBusca = this.repositoryRestaurante.findAll(
-//                Specification
-//                        .where(RestauranteSpecification.nome(Objects.isNull(nome) ? "" : nome))
-//                        .and(RestauranteSpecification.cep(Objects.isNull(cep) ? "" : cep.replace("-", "")))
-//                        .and(RestauranteSpecification.bairro(Objects.isNull(bairro) ? "" : bairro))
-//                        .and(RestauranteSpecification.cidade(Objects.isNull(cidade) ? "" : cidade))
-//                        .and(RestauranteSpecification.estado(Objects.isNull(estado) ? "" : estado))
-//                        .and(RestauranteSpecification.tipoCozinha(Objects.isNull(tipoCozinha) ? "" : tipoCozinha.name())
-//                        )
-//        );
-//        return resultadosDaBusca
-//                .stream()
-//                .map(registro -> new ExibeBuscaRestauranteDTO(
-//                        registro.getNome(),
-//                        registro.getLogradouro(),
-//                        registro.getNumeroEndereco(),
-//                        registro.getCep(),
-//                        registro.getBairro(),
-//                        registro.getCidade(),
-//                        registro.getEstado(),
-//                        registro.getComplemento(),
-//                        registro.getTipoCozinha(),
-//                        registro.getDiasFuncionamento(),
-//                        registro.getHorarioFuncionamento(),
-//                        registro.getCapacidadeDePessoas())
-//                )
-//                .toList();
-        return null;
+        var buscaRestaurante = new BuscaRestaurante(
+                nome,
+                cep,
+                bairro,
+                cidade,
+                estado,
+                tipoCozinha
+        );
+        var resultadosDaBusca = this.repository.findAll(
+                Specification
+                        .where(RestauranteSpecification.nome(Objects.isNull(buscaRestaurante.nome()) ? "" : buscaRestaurante.nome()))
+                        .and(RestauranteSpecification.cep(Objects.isNull(buscaRestaurante.cep()) ? "" : buscaRestaurante.cep().replace("-", "")))
+                        .and(RestauranteSpecification.bairro(Objects.isNull(buscaRestaurante.bairro()) ? "" : buscaRestaurante.bairro()))
+                        .and(RestauranteSpecification.cidade(Objects.isNull(buscaRestaurante.cidade()) ? "" : buscaRestaurante.cidade()))
+                        .and(RestauranteSpecification.estado(Objects.isNull(buscaRestaurante.estado()) ? "" : buscaRestaurante.estado()))
+                        .and(RestauranteSpecification.tipoCozinha(Objects.isNull(buscaRestaurante.tipoCozinha()) ? "" : buscaRestaurante.tipoCozinha().name())
+                        )
+        );
+        return resultadosDaBusca
+                .stream()
+                .map(registro -> new ExibeBuscaRestauranteDTO(
+                        registro.getNome(),
+                        registro.getLogradouro(),
+                        registro.getNumeroEndereco(),
+                        registro.getCep(),
+                        registro.getBairro(),
+                        registro.getCidade(),
+                        registro.getEstado(),
+                        registro.getComplemento(),
+                        registro.getTipoCozinha(),
+                        registro.getDiasFuncionamento(),
+                        registro.getHorarioFuncionamento(),
+                        registro.getCapacidadeDePessoas())
+                )
+                .toList();
     }
 
 }
