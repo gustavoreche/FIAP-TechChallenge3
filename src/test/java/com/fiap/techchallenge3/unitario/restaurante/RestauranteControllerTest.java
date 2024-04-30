@@ -1,4 +1,4 @@
-package com.fiap.techchallenge3.unitario.localizacao;
+package com.fiap.techchallenge3.unitario.restaurante;
 
 import com.fiap.techchallenge3.domain.localizacao.model.Cep;
 import com.fiap.techchallenge3.domain.localizacao.model.Localizacao;
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-public class LocalizacaoControllerTest {
+public class RestauranteControllerTest {
 
     @Test
     public void localizacao_existe() {

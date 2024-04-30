@@ -1,5 +1,6 @@
 package com.fiap.techchallenge3.infrastructure.restaurante.model;
 
+import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Restaurante {
+public class RestauranteEntity {
 
     @Id
     private String cnpj;

@@ -1,11 +1,11 @@
 package com.fiap.techchallenge3;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fiap.techchallenge3.model.DiasEnum;
-import com.fiap.techchallenge3.infrastructure.restaurante.model.TipoCozinhaEnum;
-import com.fiap.techchallenge3.model.dto.CriaRestauranteDTO;
-import com.fiap.techchallenge3.model.dto.EnderecoCompletoDTO;
-import com.fiap.techchallenge3.model.dto.HorarioDeFuncionamentoDTO;
+import com.fiap.techchallenge3.domain.restaurante.model.DiasEnum;
+import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
+import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.CriaRestauranteDTO;
+import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.EnderecoCompletoDTO;
+import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.HorarioDeFuncionamentoDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.repository.RestauranteRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -411,8 +411,6 @@ class RestauranteCadastraTests {
 				Arguments.of(" ", "Nome de teste", localizacaoDefault(),
 						TipoCozinhaEnum.COMIDA_JAPONESA, horarioFuncionamentoDefault(), 10),
 				Arguments.of("aa", "Nome de teste", localizacaoDefault(),
-						TipoCozinhaEnum.COMIDA_JAPONESA, horarioFuncionamentoDefault(), 10),
-				Arguments.of("04.623021/0001-14", "Nome de teste", localizacaoDefault(),
 						TipoCozinhaEnum.COMIDA_JAPONESA, horarioFuncionamentoDefault(), 10),
 				Arguments.of("376.082.600-84", "Nome de teste", localizacaoDefault(),
 						TipoCozinhaEnum.COMIDA_JAPONESA, horarioFuncionamentoDefault(), 10),

@@ -4,7 +4,6 @@ import com.fiap.techchallenge3.infrastructure.localizacao.controller.dto.Localiz
 import com.fiap.techchallenge3.useCase.localizacao.LocalizacaoUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.Pattern;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,8 +36,7 @@ public class LocalizacaoController {
 			summary = "Serviço para buscar dados do endereço do restaurante, baseado no CEP."
 	)
 	@GetMapping("/{cep}")
-	public ResponseEntity<LocalizacaoDTO> buscaPorCep(@PathVariable
-													  @Pattern(regexp = REGEX_CEP) final String cep) {
+	public ResponseEntity<LocalizacaoDTO> buscaPorCep(@PathVariable final String cep) {
 		return ResponseEntity
 				.status(HttpStatus.OK)
 				.body(

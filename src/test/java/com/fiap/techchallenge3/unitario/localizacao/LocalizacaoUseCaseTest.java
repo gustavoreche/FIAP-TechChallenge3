@@ -30,7 +30,7 @@ public class LocalizacaoUseCaseTest {
 
         // avaliação
         Assertions.assertEquals("Rua A", localizacao.logradouro());
-        Assertions.assertEquals("12345-678", localizacao.cep());
+        Assertions.assertEquals("12345-678", localizacao.cep().numero());
         Assertions.assertEquals("Bairro A", localizacao.bairro());
         Assertions.assertEquals("Cidade A", localizacao.cidade());
         Assertions.assertEquals("SP", localizacao.estado());
@@ -56,7 +56,7 @@ public class LocalizacaoUseCaseTest {
         var excecao = Assertions.assertThrows(RuntimeException.class, () -> {
             localizacaoUseCaseImpl.buscaPorCep("12345-678");
         });
-        Assertions.assertEquals("ENDEREÇO NAO EXISTE!", excecao.getMessage());
+        Assertions.assertEquals("LOGRADOURO NAO PODE SER NULO OU VAZIO!", excecao.getMessage());
     }
 
     @Test
