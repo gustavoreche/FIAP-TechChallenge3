@@ -143,7 +143,17 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
+			<plugin>
+				<groupId>io.gatling</groupId>
+				<artifactId>gatling-maven-plugin</artifactId>
+				<version>4.3.7</version>
+				<configuration>
+					<simulationClass>com.fiap.techchallenge3.performance.PerformanceTestSimulation</simulationClass>
+				</configuration>
+			</plugin>
+
 		</plugins>
+
 	</build>
 
 	<profiles>
