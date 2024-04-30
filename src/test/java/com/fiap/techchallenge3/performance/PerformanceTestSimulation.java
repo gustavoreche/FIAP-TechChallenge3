@@ -48,11 +48,20 @@ public class PerformanceTestSimulation extends Simulation {
                     """))
             .check(status().is(201));
 
+    ActionBuilder buscaRestauranteRequest = http("busca restaurante")
+            .get("/restaurante")
+            .header("Content-Type", "application/json")
+            .check(status().is(200));
+
     ScenarioBuilder cenarioBuscaLocalizacao = scenario("Buscar localizacao")
             .exec(buscaLocalizacaoRequest);
 
     ScenarioBuilder cenarioCadastraRestaurante = scenario("Cadastra restaurante")
             .exec(cadastraRestauranteRequest);
+
+    ScenarioBuilder cenarioBuscaRestaurante = scenario("Busca restaurante")
+            .exec(cadastraRestauranteRequest)
+            .exec(buscaRestauranteRequest);
 
     {
         setUp(
@@ -74,7 +83,17 @@ public class PerformanceTestSimulation extends Simulation {
                                 .during(Duration.ofSeconds(20)),
                         rampUsersPerSec(10)
                                 .to(1)
+                                .during(Duration.ofSeconds(10))),
+                cenarioBuscaRestaurante.injectOpen(
+                        rampUsersPerSec(1)
+                                .to(10)
+                                .during(Duration.ofSeconds(10)),
+                        constantUsersPerSec(10)
+                                .during(Duration.ofSeconds(20)),
+                        rampUsersPerSec(10)
+                                .to(1)
                                 .during(Duration.ofSeconds(10)))
+
         )
                 .protocols(httpProtocol)
                 .assertions(

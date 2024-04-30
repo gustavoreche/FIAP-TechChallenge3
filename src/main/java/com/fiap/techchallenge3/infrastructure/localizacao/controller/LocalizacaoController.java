@@ -21,8 +21,6 @@ import static com.fiap.techchallenge3.infrastructure.localizacao.controller.Loca
 @RequestMapping(URL_LOCALIZACAO)
 public class LocalizacaoController {
 
-	public static final String REGEX_CEP = "^\\d{5}-\\d{3}$";
-
 	public static final String URL_LOCALIZACAO = "/localizacao";
 	public static final String URL_LOCALIZACAO_POR_CEP = URL_LOCALIZACAO.concat("/{cep}");
 

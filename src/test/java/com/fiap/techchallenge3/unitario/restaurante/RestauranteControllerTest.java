@@ -5,7 +5,10 @@ import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.RestauranteController;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.CriaRestauranteDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.EnderecoCompletoDTO;
+import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.ExibeBuscaRestauranteDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.HorarioDeFuncionamentoDTO;
+import com.fiap.techchallenge3.infrastructure.restaurante.model.RestauranteEntity;
+import com.fiap.techchallenge3.infrastructure.restaurante.repository.RestauranteRepository;
 import com.fiap.techchallenge3.useCase.restaurante.impl.RestauranteUseCaseImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -13,13 +16,18 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.stream.Stream;
 
 import static com.fiap.techchallenge3.utils.RestauranteUtils.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class RestauranteControllerTest {
 
@@ -176,6 +184,125 @@ public class RestauranteControllerTest {
         });
     }
 
+    @Test
+    public void restaurante_deveRetornar200_informandoTodosCampos_buscaNaBaseDeDados() {
+        // preparação
+        var restauranteUseCaseImpl = Mockito.mock(RestauranteUseCaseImpl.class);
+        Mockito.when(restauranteUseCaseImpl.busca(
+                    anyString(),
+                    anyString(),
+                    anyString(),
+                    anyString(),
+                    anyString(),
+                    any(TipoCozinhaEnum.class)
+                    )
+                )
+                .thenReturn(
+                        List.of(
+                                new ExibeBuscaRestauranteDTO(
+                                        "teste",
+                                        "Restaurante A",
+                                        123,
+                                        "14025010",
+                                        "Jardim Sumare",
+                                        "Rua teste",
+                                        "SP",
+                                        "casa 1",
+                                        TipoCozinhaEnum.COMIDA_JAPONESA,
+                                        "DOMINGO",
+                                        "24horas",
+                                        300
+                                )
+                        )
+                );
+
+        var restauranteController = new RestauranteController(restauranteUseCaseImpl);
+
+        // execução
+        var restaurante = restauranteController.busca(
+                "nome teste",
+                "14000-000",
+                "bairro teste",
+                "cidade teste",
+                "SP",
+                TipoCozinhaEnum.COMIDA_JAPONESA
+        );
+
+        // avaliação
+        Assertions.assertEquals(HttpStatus.OK, restaurante.getStatusCode());
+    }
+
+    @Test
+    public void restaurante_deveRetornar204_informandoTodosCampos_buscaNaBaseDeDados() {
+        // preparação
+        var restauranteUseCaseImpl = Mockito.mock(RestauranteUseCaseImpl.class);
+        Mockito.when(restauranteUseCaseImpl.busca(
+                                anyString(),
+                                anyString(),
+                                anyString(),
+                                anyString(),
+                                anyString(),
+                                any(TipoCozinhaEnum.class)
+                        )
+                )
+                .thenReturn(
+                        List.of()
+                );
+
+        var restauranteController = new RestauranteController(restauranteUseCaseImpl);
+
+        // execução
+        var restaurante = restauranteController.busca(
+                "nome teste",
+                "14000-000",
+                "bairro teste",
+                "cidade teste",
+                "SP",
+                TipoCozinhaEnum.COMIDA_JAPONESA
+        );
+
+        // avaliação
+        Assertions.assertEquals(HttpStatus.NO_CONTENT, restaurante.getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("requestValidandoCamposDeBusca")
+    public void restaurante_camposInvalidos_naoBuscaNaBaseDeDados(String nome,
+                                                                  String cep,
+                                                                  String bairro,
+                                                                  String cidade,
+                                                                  String estado,
+                                                                  TipoCozinhaEnum tipoCozinha) {
+        // preparação
+        var restauranteUseCaseImpl = Mockito.mock(RestauranteUseCaseImpl.class);
+        Mockito.doThrow(
+                        new IllegalArgumentException("Campos inválidos!")
+                )
+                .when(restauranteUseCaseImpl)
+                .busca(
+                        anyString(),
+                        anyString(),
+                        anyString(),
+                        anyString(),
+                        anyString(),
+                        any(TipoCozinhaEnum.class)
+                );
+
+        var restauranteController = new RestauranteController(restauranteUseCaseImpl);
+
+        // execução e avaliação
+        var excecao = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            restauranteController.busca(
+                    nome,
+                    cep,
+                    bairro,
+                    cidade,
+                    estado,
+                    tipoCozinha
+            );
+        });
+    }
+
     private static Stream<Arguments> requestValidandoCampos() {
         return Stream.of(
                 Arguments.of(null, "Nome de teste", localizacaoDefault(),
@@ -283,6 +410,25 @@ public class RestauranteControllerTest {
                 Arguments.of("22:00 ate 25:00"),
                 Arguments.of("22:00 ate 22:00"),
                 Arguments.of("22:00 ate 21:00")
+        );
+    }
+
+    private static Stream<Arguments> requestValidandoCamposDeBusca() {
+        return Stream.of(
+                Arguments.of(" ", "14000-000", "bairro teste", "cidade teste", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+                Arguments.of("aa", "14000-000", "bairro teste", "cidade teste", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+                Arguments.of("aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeef", "14000-000", "bairro teste", "cidade teste", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+                Arguments.of("Nome de teste", " ", "bairro teste", "cidade teste", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+                Arguments.of("Nome de teste", "14000000", "bairro teste", "cidade teste", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+                Arguments.of("Nome de teste", "14000-000", " ", "cidade teste", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+                Arguments.of("Nome de teste", "14000-000", "aaaa", "cidade teste", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+                Arguments.of("Nome de teste", "14000-000", "aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeef", "cidade teste", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+                Arguments.of("Nome de teste", "14000-000", "bairro teste", " ", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+                Arguments.of("Nome de teste", "14000-000", "bairro teste", "aaaa", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+                Arguments.of("Nome de teste", "14000-000", "bairro teste", "aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeef", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+                Arguments.of("Nome de teste", "14000-000", "bairro teste", "cidade teste", " ", TipoCozinhaEnum.COMIDA_JAPONESA),
+                Arguments.of("Nome de teste", "14000-000", "bairro teste", "cidade teste", "a", TipoCozinhaEnum.COMIDA_JAPONESA),
+                Arguments.of("Nome de teste", "14000-000", "bairro teste", "cidade teste", "aaa", TipoCozinhaEnum.COMIDA_JAPONESA)
         );
     }
 

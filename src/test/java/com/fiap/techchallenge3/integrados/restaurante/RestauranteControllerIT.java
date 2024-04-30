@@ -1,11 +1,15 @@
 package com.fiap.techchallenge3.integrados.restaurante;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiap.techchallenge3.domain.restaurante.model.DiasEnum;
 import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
+import com.fiap.techchallenge3.infrastructure.localizacao.client.ViaCepResponse;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.CriaRestauranteDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.EnderecoCompletoDTO;
+import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.ExibeBuscaRestauranteDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.HorarioDeFuncionamentoDTO;
+import com.fiap.techchallenge3.infrastructure.restaurante.model.RestauranteEntity;
 import com.fiap.techchallenge3.infrastructure.restaurante.repository.RestauranteRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -269,6 +273,578 @@ class RestauranteControllerIT {
 		Assertions.assertTrue(response.getResponse().getContentAsString().contains("Erro na definição dos horarios... Exemplo de como deve ser: 22:10. Segue o valor errado"));
 	}
 
+	@Test
+	public void restaurante_deveRetornar200_informandoTodosCampos_buscaNaBaseDeDados() throws Exception {
+
+		var restaurante1 = RestauranteEntity.builder()
+				.cnpj("49251058000123")
+				.nome("Restaurante Teste A")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("18:00 ate 23:00")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade teste A")
+				.estado("SP")
+				.build();
+		var restaurante2 = RestauranteEntity.builder()
+				.cnpj("49251058000105")
+				.nome("Restaurante bla bla B")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("18:00 ate 23:00")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade teste A")
+				.estado("SP")
+				.build();
+		this.repositoryRestaurante.saveAll(List.of(restaurante1, restaurante2));
+
+		var response = this.mockMvc
+				.perform(MockMvcRequestBuilders.get(URL_RESTAURANTE)
+						.param("nome", "Restaurante Teste")
+						.param("cep", "14000-000")
+						.param("bairro", "bairro teste")
+						.param("cidade", "cidade teste")
+						.param("estado", "SP")
+						.param("tipoCozinha", TipoCozinhaEnum.COMIDA_ARABE.name())
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isOk()
+				).andReturn();
+		var responseAppString = response.getResponse().getContentAsString();
+		var responseApp = this.objectMapper
+				.readValue(responseAppString, new TypeReference<List<ExibeBuscaRestauranteDTO>>(){});
+
+		Assertions.assertEquals(1, responseApp.size());
+		Assertions.assertEquals("Restaurante Teste A", responseApp.get(0).nome());
+		Assertions.assertEquals("rua teste", responseApp.get(0).logradouro());
+		Assertions.assertEquals(10, responseApp.get(0).numero());
+		Assertions.assertEquals("14000000", responseApp.get(0).cep());
+		Assertions.assertEquals("bairro teste A", responseApp.get(0).bairro());
+		Assertions.assertEquals("cidade teste A", responseApp.get(0).cidade());
+		Assertions.assertEquals("SP", responseApp.get(0).estado());
+		Assertions.assertNull(responseApp.get(0).complemento());
+		Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, responseApp.get(0).tipoCozinha());
+		Assertions.assertEquals(List.of(DiasEnum.TODOS).toString(), responseApp.get(0).diasFuncionamento());
+		Assertions.assertEquals("18:00 ate 23:00", responseApp.get(0).horarioFuncionamento());
+		Assertions.assertEquals(500, responseApp.get(0).capacidadeDePessoas());
+	}
+
+	@Test
+	public void restaurante_deveRetornar200_informandoApenasNome_buscaNaBaseDeDados() throws Exception {
+
+		var restaurante1 = RestauranteEntity.builder()
+				.cnpj("49251058000123")
+				.nome("Restaurante Teste A")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("18:00 ate 23:00")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade teste A")
+				.estado("SP")
+				.build();
+		var restaurante2 = RestauranteEntity.builder()
+				.cnpj("49251058000105")
+				.nome("Restaurante bla bla B")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("18:00 ate 23:00")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade teste A")
+				.estado("SP")
+				.build();
+		this.repositoryRestaurante.saveAll(List.of(restaurante1, restaurante2));
+
+		var response = this.mockMvc
+				.perform(MockMvcRequestBuilders.get(URL_RESTAURANTE)
+						.param("nome", "Restaurante Teste")
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isOk()
+				).andReturn();
+		var responseAppString = response.getResponse().getContentAsString();
+		var responseApp = this.objectMapper
+				.readValue(responseAppString, new TypeReference<List<ExibeBuscaRestauranteDTO>>(){});
+
+		Assertions.assertEquals(1, responseApp.size());
+		Assertions.assertEquals("Restaurante Teste A", responseApp.get(0).nome());
+		Assertions.assertEquals("rua teste", responseApp.get(0).logradouro());
+		Assertions.assertEquals(10, responseApp.get(0).numero());
+		Assertions.assertEquals("14000000", responseApp.get(0).cep());
+		Assertions.assertEquals("bairro teste A", responseApp.get(0).bairro());
+		Assertions.assertEquals("cidade teste A", responseApp.get(0).cidade());
+		Assertions.assertEquals("SP", responseApp.get(0).estado());
+		Assertions.assertNull(responseApp.get(0).complemento());
+		Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, responseApp.get(0).tipoCozinha());
+		Assertions.assertEquals(List.of(DiasEnum.TODOS).toString(), responseApp.get(0).diasFuncionamento());
+		Assertions.assertEquals("18:00 ate 23:00", responseApp.get(0).horarioFuncionamento());
+		Assertions.assertEquals(500, responseApp.get(0).capacidadeDePessoas());
+	}
+
+	@Test
+	public void restaurante_deveRetornar200_informandoApenasCep_buscaNaBaseDeDados() throws Exception {
+
+		var restaurante1 = RestauranteEntity.builder()
+				.cnpj("49251058000123")
+				.nome("Restaurante Teste A")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("18:00 ate 23:00")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade teste A")
+				.estado("SP")
+				.build();
+		var restaurante2 = RestauranteEntity.builder()
+				.cnpj("49251058000105")
+				.nome("Restaurante bla bla B")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("18:00 ate 23:00")
+				.capacidadeDePessoas(500)
+				.cep("14000001")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade teste A")
+				.estado("SP")
+				.build();
+		this.repositoryRestaurante.saveAll(List.of(restaurante1, restaurante2));
+
+		var response = this.mockMvc
+				.perform(MockMvcRequestBuilders.get(URL_RESTAURANTE)
+						.param("cep", "14000-000")
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isOk()
+				).andReturn();
+		var responseAppString = response.getResponse().getContentAsString();
+		var responseApp = this.objectMapper
+				.readValue(responseAppString, new TypeReference<List<ExibeBuscaRestauranteDTO>>(){});
+
+		Assertions.assertEquals(1, responseApp.size());
+		Assertions.assertEquals("Restaurante Teste A", responseApp.get(0).nome());
+		Assertions.assertEquals("rua teste", responseApp.get(0).logradouro());
+		Assertions.assertEquals(10, responseApp.get(0).numero());
+		Assertions.assertEquals("14000000", responseApp.get(0).cep());
+		Assertions.assertEquals("bairro teste A", responseApp.get(0).bairro());
+		Assertions.assertEquals("cidade teste A", responseApp.get(0).cidade());
+		Assertions.assertEquals("SP", responseApp.get(0).estado());
+		Assertions.assertNull(responseApp.get(0).complemento());
+		Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, responseApp.get(0).tipoCozinha());
+		Assertions.assertEquals(List.of(DiasEnum.TODOS).toString(), responseApp.get(0).diasFuncionamento());
+		Assertions.assertEquals("18:00 ate 23:00", responseApp.get(0).horarioFuncionamento());
+		Assertions.assertEquals(500, responseApp.get(0).capacidadeDePessoas());
+	}
+
+	@Test
+	public void restaurante_deveRetornar200_informandoApenasBairro_buscaNaBaseDeDados() throws Exception {
+
+		var restaurante1 = RestauranteEntity.builder()
+				.cnpj("49251058000123")
+				.nome("Restaurante Teste A")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("18:00 ate 23:00")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade teste A")
+				.estado("SP")
+				.build();
+		var restaurante2 = RestauranteEntity.builder()
+				.cnpj("49251058000105")
+				.nome("Restaurante bla bla B")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("18:00 ate 23:00")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro A")
+				.cidade("cidade teste A")
+				.estado("SP")
+				.build();
+		this.repositoryRestaurante.saveAll(List.of(restaurante1, restaurante2));
+
+		var response = this.mockMvc
+				.perform(MockMvcRequestBuilders.get(URL_RESTAURANTE)
+						.param("bairro", "bairro teste")
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isOk()
+				).andReturn();
+		var responseAppString = response.getResponse().getContentAsString();
+		var responseApp = this.objectMapper
+				.readValue(responseAppString, new TypeReference<List<ExibeBuscaRestauranteDTO>>(){});
+
+		Assertions.assertEquals(1, responseApp.size());
+		Assertions.assertEquals("Restaurante Teste A", responseApp.get(0).nome());
+		Assertions.assertEquals("rua teste", responseApp.get(0).logradouro());
+		Assertions.assertEquals(10, responseApp.get(0).numero());
+		Assertions.assertEquals("14000000", responseApp.get(0).cep());
+		Assertions.assertEquals("bairro teste A", responseApp.get(0).bairro());
+		Assertions.assertEquals("cidade teste A", responseApp.get(0).cidade());
+		Assertions.assertEquals("SP", responseApp.get(0).estado());
+		Assertions.assertNull(responseApp.get(0).complemento());
+		Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, responseApp.get(0).tipoCozinha());
+		Assertions.assertEquals(List.of(DiasEnum.TODOS).toString(), responseApp.get(0).diasFuncionamento());
+		Assertions.assertEquals("18:00 ate 23:00", responseApp.get(0).horarioFuncionamento());
+		Assertions.assertEquals(500, responseApp.get(0).capacidadeDePessoas());
+	}
+
+	@Test
+	public void restaurante_deveRetornar200_informandoApenasCidade_buscaNaBaseDeDados() throws Exception {
+
+		var restaurante1 = RestauranteEntity.builder()
+				.cnpj("49251058000123")
+				.nome("Restaurante Teste A")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("18:00 ate 23:00")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade teste A")
+				.estado("SP")
+				.build();
+		var restaurante2 = RestauranteEntity.builder()
+				.cnpj("49251058000105")
+				.nome("Restaurante bla bla B")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("18:00 ate 23:00")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade A")
+				.estado("SP")
+				.build();
+		this.repositoryRestaurante.saveAll(List.of(restaurante1, restaurante2));
+
+		var response = this.mockMvc
+				.perform(MockMvcRequestBuilders.get(URL_RESTAURANTE)
+						.param("cidade", "cidade teste")
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isOk()
+				).andReturn();
+		var responseAppString = response.getResponse().getContentAsString();
+		var responseApp = this.objectMapper
+				.readValue(responseAppString, new TypeReference<List<ExibeBuscaRestauranteDTO>>(){});
+
+		Assertions.assertEquals(1, responseApp.size());
+		Assertions.assertEquals("Restaurante Teste A", responseApp.get(0).nome());
+		Assertions.assertEquals("rua teste", responseApp.get(0).logradouro());
+		Assertions.assertEquals(10, responseApp.get(0).numero());
+		Assertions.assertEquals("14000000", responseApp.get(0).cep());
+		Assertions.assertEquals("bairro teste A", responseApp.get(0).bairro());
+		Assertions.assertEquals("cidade teste A", responseApp.get(0).cidade());
+		Assertions.assertEquals("SP", responseApp.get(0).estado());
+		Assertions.assertNull(responseApp.get(0).complemento());
+		Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, responseApp.get(0).tipoCozinha());
+		Assertions.assertEquals(List.of(DiasEnum.TODOS).toString(), responseApp.get(0).diasFuncionamento());
+		Assertions.assertEquals("18:00 ate 23:00", responseApp.get(0).horarioFuncionamento());
+		Assertions.assertEquals(500, responseApp.get(0).capacidadeDePessoas());
+	}
+
+	@Test
+	public void restaurante_deveRetornar200_informandoApenasEstado_buscaNaBaseDeDados() throws Exception {
+
+		var restaurante1 = RestauranteEntity.builder()
+				.cnpj("49251058000123")
+				.nome("Restaurante Teste A")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("18:00 ate 23:00")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade teste A")
+				.estado("SP")
+				.build();
+		var restaurante2 = RestauranteEntity.builder()
+				.cnpj("49251058000105")
+				.nome("Restaurante bla bla B")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("18:00 ate 23:00")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade teste A")
+				.estado("RJ")
+				.build();
+		this.repositoryRestaurante.saveAll(List.of(restaurante1, restaurante2));
+
+		var response = this.mockMvc
+				.perform(MockMvcRequestBuilders.get(URL_RESTAURANTE)
+						.param("estado", "SP")
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isOk()
+				).andReturn();
+		var responseAppString = response.getResponse().getContentAsString();
+		var responseApp = this.objectMapper
+				.readValue(responseAppString, new TypeReference<List<ExibeBuscaRestauranteDTO>>(){});
+
+		Assertions.assertEquals(1, responseApp.size());
+		Assertions.assertEquals("Restaurante Teste A", responseApp.get(0).nome());
+		Assertions.assertEquals("rua teste", responseApp.get(0).logradouro());
+		Assertions.assertEquals(10, responseApp.get(0).numero());
+		Assertions.assertEquals("14000000", responseApp.get(0).cep());
+		Assertions.assertEquals("bairro teste A", responseApp.get(0).bairro());
+		Assertions.assertEquals("cidade teste A", responseApp.get(0).cidade());
+		Assertions.assertEquals("SP", responseApp.get(0).estado());
+		Assertions.assertNull(responseApp.get(0).complemento());
+		Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, responseApp.get(0).tipoCozinha());
+		Assertions.assertEquals(List.of(DiasEnum.TODOS).toString(), responseApp.get(0).diasFuncionamento());
+		Assertions.assertEquals("18:00 ate 23:00", responseApp.get(0).horarioFuncionamento());
+		Assertions.assertEquals(500, responseApp.get(0).capacidadeDePessoas());
+	}
+
+	@Test
+	public void restaurante_deveRetornar200_informandoApenasTipoCozinha_buscaNaBaseDeDados() throws Exception {
+
+		var restaurante1 = RestauranteEntity.builder()
+				.cnpj("49251058000123")
+				.nome("Restaurante Teste A")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("18:00 ate 23:00")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade teste A")
+				.estado("SP")
+				.build();
+		var restaurante2 = RestauranteEntity.builder()
+				.cnpj("49251058000105")
+				.nome("Restaurante bla bla B")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_JAPONESA)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("18:00 ate 23:00")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade teste A")
+				.estado("SP")
+				.build();
+		this.repositoryRestaurante.saveAll(List.of(restaurante1, restaurante2));
+
+		var response = this.mockMvc
+				.perform(MockMvcRequestBuilders.get(URL_RESTAURANTE)
+						.param("tipoCozinha", TipoCozinhaEnum.COMIDA_ARABE.name())
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isOk()
+				).andReturn();
+		var responseAppString = response.getResponse().getContentAsString();
+		var responseApp = this.objectMapper
+				.readValue(responseAppString, new TypeReference<List<ExibeBuscaRestauranteDTO>>(){});
+
+		Assertions.assertEquals(1, responseApp.size());
+		Assertions.assertEquals("Restaurante Teste A", responseApp.get(0).nome());
+		Assertions.assertEquals("rua teste", responseApp.get(0).logradouro());
+		Assertions.assertEquals(10, responseApp.get(0).numero());
+		Assertions.assertEquals("14000000", responseApp.get(0).cep());
+		Assertions.assertEquals("bairro teste A", responseApp.get(0).bairro());
+		Assertions.assertEquals("cidade teste A", responseApp.get(0).cidade());
+		Assertions.assertEquals("SP", responseApp.get(0).estado());
+		Assertions.assertNull(responseApp.get(0).complemento());
+		Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, responseApp.get(0).tipoCozinha());
+		Assertions.assertEquals(List.of(DiasEnum.TODOS).toString(), responseApp.get(0).diasFuncionamento());
+		Assertions.assertEquals("18:00 ate 23:00", responseApp.get(0).horarioFuncionamento());
+		Assertions.assertEquals(500, responseApp.get(0).capacidadeDePessoas());
+	}
+
+	@Test
+	public void restaurante_deveRetornar200_informandoNenhumCampos_buscaNaBaseDeDados() throws Exception {
+
+		var restaurante1 = RestauranteEntity.builder()
+				.cnpj("49251058000123")
+				.nome("Restaurante Teste A")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("18:00 ate 23:00")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade teste A")
+				.estado("SP")
+				.build();
+		var restaurante2 = RestauranteEntity.builder()
+				.cnpj("49251058000105")
+				.nome("Restaurante bla bla B")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("18:00 ate 23:00")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade teste A")
+				.estado("SP")
+				.build();
+		this.repositoryRestaurante.saveAll(List.of(restaurante1, restaurante2));
+
+		var response = this.mockMvc
+				.perform(MockMvcRequestBuilders.get(URL_RESTAURANTE)
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isOk()
+				).andReturn();
+		var responseAppString = response.getResponse().getContentAsString();
+		var responseApp = this.objectMapper
+				.readValue(responseAppString, new TypeReference<List<ExibeBuscaRestauranteDTO>>(){});
+
+		Assertions.assertEquals(2, responseApp.size());
+		var restauranteResponse1 = responseApp.get(0).nome()
+				.equalsIgnoreCase("Restaurante Teste A") ? responseApp.get(0) : responseApp.get(1);
+		var restauranteResponse2 = responseApp.get(1).nome()
+				.equalsIgnoreCase("Restaurante bla bla B") ? responseApp.get(1) : responseApp.get(0);
+		Assertions.assertEquals("Restaurante Teste A", restauranteResponse1.nome());
+		Assertions.assertEquals("rua teste", restauranteResponse1.logradouro());
+		Assertions.assertEquals(10, restauranteResponse1.numero());
+		Assertions.assertEquals("14000000", restauranteResponse1.cep());
+		Assertions.assertEquals("bairro teste A", restauranteResponse1.bairro());
+		Assertions.assertEquals("cidade teste A", restauranteResponse1.cidade());
+		Assertions.assertEquals("SP", restauranteResponse1.estado());
+		Assertions.assertNull(restauranteResponse1.complemento());
+		Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, restauranteResponse1.tipoCozinha());
+		Assertions.assertEquals(List.of(DiasEnum.TODOS).toString(), restauranteResponse1.diasFuncionamento());
+		Assertions.assertEquals("18:00 ate 23:00", restauranteResponse1.horarioFuncionamento());
+		Assertions.assertEquals(500, restauranteResponse1.capacidadeDePessoas());
+
+		Assertions.assertEquals("Restaurante bla bla B", restauranteResponse2.nome());
+		Assertions.assertEquals("rua teste", restauranteResponse2.logradouro());
+		Assertions.assertEquals(10, restauranteResponse2.numero());
+		Assertions.assertEquals("14000000", restauranteResponse2.cep());
+		Assertions.assertEquals("bairro teste A", restauranteResponse2.bairro());
+		Assertions.assertEquals("cidade teste A", restauranteResponse2.cidade());
+		Assertions.assertEquals("SP", restauranteResponse2.estado());
+		Assertions.assertNull(restauranteResponse2.complemento());
+		Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, restauranteResponse2.tipoCozinha());
+		Assertions.assertEquals(List.of(DiasEnum.TODOS).toString(), restauranteResponse2.diasFuncionamento());
+		Assertions.assertEquals("18:00 ate 23:00", restauranteResponse2.horarioFuncionamento());
+		Assertions.assertEquals(500, restauranteResponse2.capacidadeDePessoas());
+	}
+
+	@Test
+	public void restaurante_deveRetornar204_informandoTodosCampos_buscaNaBaseDeDados() throws Exception {
+
+		var restaurante1 = RestauranteEntity.builder()
+				.cnpj("49251058000123")
+				.nome("Restaurante Teste A")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("18:00 ate 23:00")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade teste A")
+				.estado("SP")
+				.build();
+		var restaurante2 = RestauranteEntity.builder()
+				.cnpj("49251058000105")
+				.nome("Restaurante bla bla B")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("18:00 ate 23:00")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade teste A")
+				.estado("SP")
+				.build();
+		this.repositoryRestaurante.saveAll(List.of(restaurante1, restaurante2));
+
+		var response = this.mockMvc
+				.perform(MockMvcRequestBuilders.get(URL_RESTAURANTE)
+						.param("nome", "Restaurante Teste Ole")
+						.param("cep", "14000-000")
+						.param("bairro", "bairro teste")
+						.param("cidade", "cidade teste")
+						.param("estado", "SP")
+						.param("tipoCozinha", TipoCozinhaEnum.COMIDA_ARABE.name())
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isNoContent()
+				).andReturn();
+	}
+
+	@ParameterizedTest
+	@MethodSource("requestValidandoCamposDeBusca")
+	public void restaurante_camposInvalidos_naoBuscaNaBaseDeDados(String nome,
+																  String cep,
+																  String bairro,
+																  String cidade,
+																  String estado,
+																  TipoCozinhaEnum tipoCozinha) throws Exception {
+		this.mockMvc
+				.perform(MockMvcRequestBuilders.get(URL_RESTAURANTE)
+						.param("nome", nome)
+						.param("cep", cep)
+						.param("bairro", bairro)
+						.param("cidade", cidade)
+						.param("estado", estado)
+						.param("tipoCozinha", tipoCozinha.name())
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isBadRequest()
+				);
+	}
+
 	private static Stream<Arguments> requestValidandoCampos() {
 		return Stream.of(
 				Arguments.of(null, "Nome de teste", localizacaoDefault(),
@@ -376,6 +952,25 @@ class RestauranteControllerIT {
 				Arguments.of("22:00 ate 25:00"),
 				Arguments.of("22:00 ate 22:00"),
 				Arguments.of("22:00 ate 21:00")
+		);
+	}
+
+	private static Stream<Arguments> requestValidandoCamposDeBusca() {
+		return Stream.of(
+				Arguments.of(" ", "14000-000", "bairro teste", "cidade teste", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+				Arguments.of("aa", "14000-000", "bairro teste", "cidade teste", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+				Arguments.of("aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeef", "14000-000", "bairro teste", "cidade teste", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+				Arguments.of("Nome de teste", " ", "bairro teste", "cidade teste", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+				Arguments.of("Nome de teste", "14000000", "bairro teste", "cidade teste", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+				Arguments.of("Nome de teste", "14000-000", " ", "cidade teste", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+				Arguments.of("Nome de teste", "14000-000", "aaaa", "cidade teste", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+				Arguments.of("Nome de teste", "14000-000", "aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeef", "cidade teste", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+				Arguments.of("Nome de teste", "14000-000", "bairro teste", " ", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+				Arguments.of("Nome de teste", "14000-000", "bairro teste", "aaaa", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+				Arguments.of("Nome de teste", "14000-000", "bairro teste", "aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeef", "sp", TipoCozinhaEnum.COMIDA_JAPONESA),
+				Arguments.of("Nome de teste", "14000-000", "bairro teste", "cidade teste", " ", TipoCozinhaEnum.COMIDA_JAPONESA),
+				Arguments.of("Nome de teste", "14000-000", "bairro teste", "cidade teste", "a", TipoCozinhaEnum.COMIDA_JAPONESA),
+				Arguments.of("Nome de teste", "14000-000", "bairro teste", "cidade teste", "aaa", TipoCozinhaEnum.COMIDA_JAPONESA)
 		);
 	}
 
