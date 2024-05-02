@@ -1,12 +1,14 @@
-package com.fiap.techchallenge3.model;
+package com.fiap.techchallenge3.infrastructure.reserva.model;
 
 import com.fiap.techchallenge3.domain.restaurante.model.DiasEnum;
+import com.fiap.techchallenge3.domain.reserva.StatusReservaEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,15 +17,14 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Reserva {
+public class ReservaEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String cnpjRestaurante;
     private String cpfCnpjCliente;
-    @Enumerated(EnumType.STRING)
-    private DiasEnum dia;
+    private LocalDate dia;
     private String horarioDeChegada;
     private int quantidadeLugaresClienteDeseja;
     private LocalDateTime horarioDaReservaRealizada;

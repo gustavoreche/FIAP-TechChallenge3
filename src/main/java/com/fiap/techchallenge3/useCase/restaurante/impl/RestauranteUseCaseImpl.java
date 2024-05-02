@@ -46,8 +46,11 @@ public class RestauranteUseCaseImpl implements RestauranteUseCase {
                 Objects.isNull(dadosRestaurante.horarioFuncionamento()) ? null : dadosRestaurante.horarioFuncionamento().diasAbertos(),
                 Objects.isNull(dadosRestaurante.horarioFuncionamento()) ? null : dadosRestaurante.horarioFuncionamento().horarioFuncionamento()
         );
+        var cnpj = new Cnpj(
+                dadosRestaurante.cnpj()
+        );
         var restaurante = new Restaurante(
-                dadosRestaurante.cnpj(),
+                cnpj,
                 dadosRestaurante.nome(),
                 localizacaoRestaurante,
                 dadosRestaurante.tipoCozinha(),
@@ -56,7 +59,7 @@ public class RestauranteUseCaseImpl implements RestauranteUseCase {
         );
 
         var restauranteEntity = new RestauranteEntity(
-                restaurante.cnpj()
+                restaurante.cnpj().numero()
                         .replace(".", "")
                         .replace("/", "")
                         .replace("-", ""),

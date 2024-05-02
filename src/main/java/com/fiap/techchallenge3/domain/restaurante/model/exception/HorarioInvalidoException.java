@@ -1,4 +1,4 @@
-package com.fiap.techchallenge3.controller.exception;
+package com.fiap.techchallenge3.domain.restaurante.model.exception;
 
 public class HorarioInvalidoException extends RuntimeException {
 
