@@ -1,4 +1,4 @@
-package com.fiap.techchallenge3.model.dto;
+package com.fiap.techchallenge3.infrastructure.reserva.controller.dto;
 
 import java.time.LocalDateTime;
 

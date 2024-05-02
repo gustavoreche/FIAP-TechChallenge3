@@ -4,8 +4,10 @@ import io.gatling.javaapi.core.ActionBuilder;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Simulation;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
+import org.springframework.cglib.core.Local;
 
 import java.time.Duration;
+import java.time.LocalDate;
 
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.http;
@@ -39,7 +41,7 @@ public class PerformanceTestSimulation extends Simulation {
                                 "tipoCozinha": "COMIDA_JAPONESA",
                                 "horarioFuncionamento": {
                                   "diasAbertos": [
-                                    "DOMINGO"
+                                    "TODOS"
                                   ],
                                   "horarioFuncionamento": "18:00 ate 23:00"
                                 },
@@ -53,6 +55,21 @@ public class PerformanceTestSimulation extends Simulation {
             .header("Content-Type", "application/json")
             .check(status().is(200));
 
+    LocalDate data = LocalDate.now();
+    ActionBuilder realizaReservaRequest = http("realiza reserva no restaurante")
+            .post("/reserva/49251058000101")
+            .header("Content-Type", "application/json")
+            .body(StringBody("""
+                              {
+                                "dia": \"""" + data + """
+                                ",
+                                "horarioDeChegada": "19:00",
+                                "quantidadeLugares": 2,
+                                "cpfCnpjCliente": "12345678901"
+                              }
+                    """))
+            .check(status().is(201));
+
     ScenarioBuilder cenarioBuscaLocalizacao = scenario("Buscar localizacao")
             .exec(buscaLocalizacaoRequest);
 
@@ -62,6 +79,10 @@ public class PerformanceTestSimulation extends Simulation {
     ScenarioBuilder cenarioBuscaRestaurante = scenario("Busca restaurante")
             .exec(cadastraRestauranteRequest)
             .exec(buscaRestauranteRequest);
+
+    ScenarioBuilder cenarioRealizaReserva = scenario("Realiza reserva no restaurante")
+            .exec(cadastraRestauranteRequest)
+            .exec(realizaReservaRequest);
 
     {
         setUp(
@@ -85,6 +106,15 @@ public class PerformanceTestSimulation extends Simulation {
                                 .to(1)
                                 .during(Duration.ofSeconds(10))),
                 cenarioBuscaRestaurante.injectOpen(
+                        rampUsersPerSec(1)
+                                .to(10)
+                                .during(Duration.ofSeconds(10)),
+                        constantUsersPerSec(10)
+                                .during(Duration.ofSeconds(20)),
+                        rampUsersPerSec(10)
+                                .to(1)
+                                .during(Duration.ofSeconds(10))),
+                cenarioRealizaReserva.injectOpen(
                         rampUsersPerSec(1)
                                 .to(10)
                                 .during(Duration.ofSeconds(10)),

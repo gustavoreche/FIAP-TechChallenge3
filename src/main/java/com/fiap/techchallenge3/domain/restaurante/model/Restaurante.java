@@ -3,7 +3,7 @@ package com.fiap.techchallenge3.domain.restaurante.model;
 import java.util.Objects;
 
 public record Restaurante(
-        String cnpj,
+        Cnpj cnpj,
         String nome,
         LocalizacaoRestaurante localizacaoCompleta,
         TipoCozinhaEnum tipoCozinha,
@@ -11,16 +11,7 @@ public record Restaurante(
         Integer capacidadeDePessoas
 ) {
 
-    public static final String REGEX_CNPJ = "^\\d{2}\\.?\\d{3}\\.?\\d{3}\\/?\\d{4}\\-?\\d{2}$";
-
     public Restaurante {
-        if (Objects.isNull(cnpj) || cnpj.isEmpty()) {
-            throw new IllegalArgumentException("CNPJ NAO PODE SER NULO OU VAZIO!");
-        }
-        if (!cnpj.matches(REGEX_CNPJ)) {
-            throw new IllegalArgumentException("CNPJ INVÁLIDO!");
-        }
-
         if (Objects.isNull(nome) || nome.isEmpty()) {
             throw new IllegalArgumentException("CNPJ NAO PODE SER NULO OU VAZIO!");
         }
