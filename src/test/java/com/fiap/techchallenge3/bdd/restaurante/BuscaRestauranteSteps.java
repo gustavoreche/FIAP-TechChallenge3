@@ -156,28 +156,38 @@ public class BuscaRestauranteSteps {
 
     @Entao("recebo as informações do restaurante")
     public void receboAsInformacoesDoRestaurante() {
-        this.response
+        var responses = this.response
                 .prettyPeek()
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("[0].nome", equalTo("Restaurante Cucumber"))
-                .body("[0].logradouro", equalTo("rua teste"))
-                .body("[0].numero", equalTo(10))
-                .body("[0].cep", equalTo("14000000"))
-                .body("[0].bairro", equalTo("bairro teste"))
-                .body("[0].cidade", equalTo("cidade teste"))
-                .body("[0].estado", equalTo("SP"))
-                .body("[0].complemento", equalTo("ap1122"))
-                .body("[0].tipoCozinha", equalTo(TipoCozinhaEnum.COMIDA_ARABE.name()))
-                .body("[0].diasFuncionamento", equalTo(List.of(DiasEnum.TODOS.name()).toString()))
-                .body("[0].horarioFuncionamento", equalTo("18:00 ate 23:00"))
-                .body("[0].capacidadeDePessoas", equalTo(500))
-        ;
+                .extract().jsonPath().getList(".", ExibeBuscaRestauranteDTO.class);
+
+        var restauranteResponse1 = responses.get(0);
+        if(responses.size() > 1) {
+            restauranteResponse1 = responses
+                    .stream()
+                    .filter(restaurante -> restaurante.nome().equalsIgnoreCase("Restaurante Cucumber"))
+                    .findFirst()
+                    .get();
+        }
+
+        Assertions.assertEquals("Restaurante Cucumber", restauranteResponse1.nome());
+        Assertions.assertEquals("rua teste", restauranteResponse1.logradouro());
+        Assertions.assertEquals(10, restauranteResponse1.numero());
+        Assertions.assertEquals("14000000", restauranteResponse1.cep());
+        Assertions.assertEquals("bairro teste", restauranteResponse1.bairro());
+        Assertions.assertEquals("cidade teste", restauranteResponse1.cidade());
+        Assertions.assertEquals("SP", restauranteResponse1.estado());
+        Assertions.assertEquals("ap1122", restauranteResponse1.complemento());
+        Assertions.assertEquals(TipoCozinhaEnum.COMIDA_ARABE, restauranteResponse1.tipoCozinha());
+        Assertions.assertEquals(List.of(DiasEnum.TODOS).toString(), restauranteResponse1.diasFuncionamento());
+        Assertions.assertEquals("18:00 ate 23:00", restauranteResponse1.horarioFuncionamento());
+        Assertions.assertEquals(500, restauranteResponse1.capacidadeDePessoas());
     }
 
     @Entao("recebo as informações de todos os restaurante")
     public void receboAsInformacoesDeTodosOsRestaurante() {
-        List<ExibeBuscaRestauranteDTO> responses = this.response
+        var responses = this.response
                 .prettyPeek()
                 .then()
                 .statusCode(HttpStatus.OK.value())
@@ -187,6 +197,18 @@ public class BuscaRestauranteSteps {
                 .equalsIgnoreCase("Restaurante Cucumber") ? responses.get(0) : responses.get(1);
         var restauranteResponse2 = responses.get(1).nome()
                 .equalsIgnoreCase("Restaurante bla bla B") ? responses.get(1) : responses.get(0);
+        if(responses.size() > 2) {
+            restauranteResponse1 = responses
+                    .stream()
+                    .filter(restaurante -> restaurante.nome().equalsIgnoreCase("Restaurante Cucumber"))
+                    .findFirst()
+                    .get();
+            restauranteResponse2 = responses
+                    .stream()
+                    .filter(restaurante -> restaurante.nome().equalsIgnoreCase("Restaurante bla bla B"))
+                    .findFirst()
+                    .get();
+        }
 
         Assertions.assertEquals("Restaurante Cucumber", restauranteResponse1.nome());
         Assertions.assertEquals("rua teste", restauranteResponse1.logradouro());

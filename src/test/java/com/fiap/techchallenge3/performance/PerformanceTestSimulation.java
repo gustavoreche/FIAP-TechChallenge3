@@ -5,7 +5,6 @@ import io.gatling.javaapi.core.ActionBuilder;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Simulation;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
-import org.springframework.cglib.core.Local;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -77,6 +76,11 @@ public class PerformanceTestSimulation extends Simulation {
             .queryParam("status", StatusReservaEnum.RESERVADO)
             .check(status().is(200));
 
+    ActionBuilder buscaReservaRequest = http("busca reserva no restaurante")
+            .get("/reserva/49251058000101")
+            .header("Content-Type", "application/json")
+            .check(status().is(200));
+
     ScenarioBuilder cenarioBuscaLocalizacao = scenario("Buscar localizacao")
             .exec(buscaLocalizacaoRequest);
 
@@ -95,6 +99,11 @@ public class PerformanceTestSimulation extends Simulation {
             .exec(cadastraRestauranteRequest)
             .exec(realizaReservaRequest)
             .exec(atualizaReservaRequest);
+
+    ScenarioBuilder cenarioBuscaReserva = scenario("Busca reserva no restaurante")
+            .exec(cadastraRestauranteRequest)
+            .exec(realizaReservaRequest)
+            .exec(buscaReservaRequest);
 
     {
         setUp(
@@ -136,6 +145,15 @@ public class PerformanceTestSimulation extends Simulation {
                                 .to(1)
                                 .during(Duration.ofSeconds(10))),
                 cenarioAtualizaReserva.injectOpen(
+                        rampUsersPerSec(1)
+                                .to(10)
+                                .during(Duration.ofSeconds(10)),
+                        constantUsersPerSec(10)
+                                .during(Duration.ofSeconds(20)),
+                        rampUsersPerSec(10)
+                                .to(1)
+                                .during(Duration.ofSeconds(10))),
+                cenarioBuscaReserva.injectOpen(
                         rampUsersPerSec(1)
                                 .to(10)
                                 .during(Duration.ofSeconds(10)),

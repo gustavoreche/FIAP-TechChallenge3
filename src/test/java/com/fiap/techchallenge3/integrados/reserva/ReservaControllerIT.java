@@ -5,13 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiap.techchallenge3.domain.reserva.StatusReservaEnum;
 import com.fiap.techchallenge3.domain.restaurante.model.DiasEnum;
 import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
+import com.fiap.techchallenge3.infrastructure.reserva.controller.dto.ExibeReservasPendentesDTO;
 import com.fiap.techchallenge3.infrastructure.reserva.controller.dto.ReservaDTO;
 import com.fiap.techchallenge3.infrastructure.reserva.model.ReservaEntity;
 import com.fiap.techchallenge3.infrastructure.reserva.repository.ReservaRepository;
-import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.CriaRestauranteDTO;
-import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.EnderecoCompletoDTO;
-import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.ExibeBuscaRestauranteDTO;
-import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.HorarioDeFuncionamentoDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.model.RestauranteEntity;
 import com.fiap.techchallenge3.infrastructure.restaurante.repository.RestauranteRepository;
 import org.junit.jupiter.api.*;
@@ -33,9 +30,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.fiap.techchallenge3.infrastructure.reserva.controller.ReservaController.*;
-import static com.fiap.techchallenge3.infrastructure.restaurante.controller.RestauranteController.URL_RESTAURANTE;
-import static com.fiap.techchallenge3.utils.RestauranteUtils.*;
+import static com.fiap.techchallenge3.infrastructure.reserva.controller.ReservaController.URL_ATUALIZA_RESERVA;
+import static com.fiap.techchallenge3.infrastructure.reserva.controller.ReservaController.URL_RESERVA_POR_CNPJ;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -511,7 +507,6 @@ class ReservaControllerIT {
 				.build();
 		this.repositoryRestaurante.save(restaurante1);
 		var reserva1 = ReservaEntity.builder()
-				.id(1L)
 				.cnpjRestaurante("49251058000123")
 				.cpfCnpjCliente("11122233344")
 				.dia(LocalDate.now())
@@ -521,9 +516,10 @@ class ReservaControllerIT {
 				.statusReserva(StatusReservaEnum.PENDENTE)
 				.build();
 		this.repositoryReserva.save(reserva1);
+		var reservaEntity = this.repositoryReserva.findAll().stream().findFirst().get();
 
 		this.mockMvc
-				.perform(MockMvcRequestBuilders.put(URL_ATUALIZA_RESERVA.replace("{idDaReserva}", "1"))
+				.perform(MockMvcRequestBuilders.put(URL_ATUALIZA_RESERVA.replace("{idDaReserva}", reservaEntity.getId().toString()))
 						.param("status", StatusReservaEnum.RESERVADO.name())
 						.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(MockMvcResultMatchers
@@ -579,6 +575,115 @@ class ReservaControllerIT {
 				);
 
 		Assertions.assertEquals(0, this.repositoryReserva.findAll().size());
+
+		mockData.close();
+	}
+
+	@Test
+	public void reserva_deveRetornar200_buscaReservasPendentesDoDia() throws Exception {
+		this.repositoryReserva.deleteAll();
+		var mockData = Mockito.mockStatic(LocalDate.class, Mockito.CALLS_REAL_METHODS);
+		var dataMock = LocalDate.of(2024, 04, 30);
+		mockData.when(LocalDate::now)
+				.thenReturn(dataMock);
+
+		var mockDateTime = Mockito.mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS);
+		var dateTimeMock = LocalDateTime.of(2024, 04, 30, 10, 01, 00);
+		mockDateTime.when(LocalDateTime::now)
+				.thenReturn(dateTimeMock);
+
+		var dataReserva = LocalDateTime.now();
+		var reserva1 = ReservaEntity.builder()
+				.id(1L)
+				.cnpjRestaurante("49251058000123")
+				.cpfCnpjCliente("11122233344")
+				.dia(LocalDate.now())
+				.horarioDeChegada("10:01")
+				.quantidadeLugaresClienteDeseja(9)
+				.horarioDaReservaRealizada(dataReserva)
+				.statusReserva(StatusReservaEnum.PENDENTE)
+				.build();
+		this.repositoryReserva.save(reserva1);
+
+		var response = this.mockMvc
+				.perform(MockMvcRequestBuilders.get(URL_RESERVA_POR_CNPJ.replace("{cnpj}", "49251058000123"))
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isOk()
+				).andReturn();
+		var responseAppString = response.getResponse().getContentAsString();
+		var responseApp = this.objectMapper
+				.readValue(responseAppString, new TypeReference<List<ExibeReservasPendentesDTO>>(){});
+
+		var reserva = responseApp.get(0);
+		var idDaBaseDeDados = responseApp.get(0).id() == 1 ? responseApp.get(0).id() : 2;
+
+		Assertions.assertEquals(1, responseApp.size());
+		Assertions.assertEquals(idDaBaseDeDados, reserva.id());
+		Assertions.assertEquals(9, reserva.quantidadeLugaresClienteDeseja());
+		Assertions.assertEquals(dataReserva, reserva.horarioDaReservaRealizada());
+
+		mockData.close();
+		mockDateTime.close();
+	}
+
+	@Test
+	public void reserva_deveRetornar400_naoBuscaReservasPendentesDoDia_cnpjInvalido() throws Exception {
+		var mockData = Mockito.mockStatic(LocalDate.class, Mockito.CALLS_REAL_METHODS);
+		var dataMock = LocalDate.of(2024, 04, 30);
+		mockData.when(LocalDate::now)
+				.thenReturn(dataMock);
+
+		var reserva1 = ReservaEntity.builder()
+				.id(1L)
+				.cnpjRestaurante("49251058000123")
+				.cpfCnpjCliente("11122233344")
+				.dia(LocalDate.now())
+				.horarioDeChegada("10:01")
+				.quantidadeLugaresClienteDeseja(9)
+				.horarioDaReservaRealizada(LocalDateTime.now())
+				.statusReserva(StatusReservaEnum.PENDENTE)
+				.build();
+		this.repositoryReserva.save(reserva1);
+
+		this.mockMvc
+				.perform(MockMvcRequestBuilders.get(URL_RESERVA_POR_CNPJ.replace("{cnpj}", "aa"))
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isBadRequest()
+				);
+
+		mockData.close();
+	}
+
+	@Test
+	public void reserva_deveRetornar500_naoBuscaReservasPendentesDoDia_semReservasNoDia() throws Exception {
+		var mockData = Mockito.mockStatic(LocalDate.class, Mockito.CALLS_REAL_METHODS);
+		var dataMock = LocalDate.of(2024, 04, 30);
+		mockData.when(LocalDate::now)
+				.thenReturn(dataMock);
+
+		var reserva1 = ReservaEntity.builder()
+				.id(1L)
+				.cnpjRestaurante("49251058000123")
+				.cpfCnpjCliente("11122233344")
+				.dia(LocalDate.of(2024, 04, 29))
+				.horarioDeChegada("10:01")
+				.quantidadeLugaresClienteDeseja(9)
+				.horarioDaReservaRealizada(LocalDateTime.now())
+				.statusReserva(StatusReservaEnum.PENDENTE)
+				.build();
+		this.repositoryReserva.save(reserva1);
+
+		this.mockMvc
+				.perform(MockMvcRequestBuilders.get(URL_RESERVA_POR_CNPJ.replace("{cnpj}", "49251058000123"))
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isInternalServerError()
+				);
 
 		mockData.close();
 	}
