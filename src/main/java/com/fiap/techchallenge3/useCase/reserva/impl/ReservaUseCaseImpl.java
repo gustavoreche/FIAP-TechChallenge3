@@ -11,7 +11,9 @@ import com.fiap.techchallenge3.infrastructure.restaurante.repository.Restaurante
 import com.fiap.techchallenge3.useCase.reserva.ReservaUseCase;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -77,9 +79,25 @@ public class ReservaUseCaseImpl implements ReservaUseCase {
     }
 
     @Override
-    public ExibeReservasPendentesDTO buscaReservasPendentesDoDia(final String cnpj) {
-//        this.repositoryReserva.save(dadosReserva.converte(cnpj));
-        return null;
+    public List<ExibeReservasPendentesDTO> buscaReservasPendentesDoDia(final String cnpj) {
+        var cnpjObject = new Cnpj(cnpj);
+        var reservasDoDia = this.repositoryReserva.findByCnpjRestauranteAndDiaAndStatusReserva(
+                cnpjObject.numero(),
+                LocalDate.now(),
+                StatusReservaEnum.PENDENTE
+        );
+        if (reservasDoDia.isEmpty()) {
+            throw new RuntimeException("Sem reservas para o restaurante no dia de hoje");
+        }
+        return reservasDoDia
+                .stream()
+                .map(registro -> new ExibeReservasPendentesDTO(
+                        registro.getId(),
+                        registro.getQuantidadeLugaresClienteDeseja(),
+                        registro.getHorarioDaReservaRealizada()
+                    )
+                )
+                .toList();
     }
 
 }

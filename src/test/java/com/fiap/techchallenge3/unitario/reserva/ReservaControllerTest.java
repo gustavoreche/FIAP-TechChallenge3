@@ -192,6 +192,56 @@ public class ReservaControllerTest {
         });
     }
 
+    @Test
+    public void reserva_deveRetornar200_buscaReservasPendentesDoDia() {
+        // preparação
+        var reservaUseCaseImpl = Mockito.mock(ReservaUseCaseImpl.class);
+
+        var reservaController = new ReservaController(reservaUseCaseImpl);
+
+        // execução
+        var restaurante = reservaController.buscaReservasPendentesDoDia("12345678901234");
+
+        // avaliação
+        Assertions.assertEquals(HttpStatus.OK, restaurante.getStatusCode());
+    }
+
+    @Test
+    public void reserva_deveRetornar500_naoBuscaReservasPendentesDoDia_cnpjInvalido() {
+        // preparação
+        var reservaUseCaseImpl = Mockito.mock(ReservaUseCaseImpl.class);
+        Mockito.doThrow(
+                        new RuntimeException("CNPJ INVÁLIDO!")
+                )
+                .when(reservaUseCaseImpl)
+                .buscaReservasPendentesDoDia(any());
+
+        var reservaController = new ReservaController(reservaUseCaseImpl);
+
+        // execução e avaliação
+        var excecao = Assertions.assertThrows(RuntimeException.class, () -> {
+            reservaController.buscaReservasPendentesDoDia("aa");
+        });
+    }
+
+    @Test
+    public void reserva_deveRetornar500_naoBuscaReservasPendentesDoDia_semReservasNoDia() {
+        // preparação
+        var reservaUseCaseImpl = Mockito.mock(ReservaUseCaseImpl.class);
+        Mockito.doThrow(
+                        new RuntimeException("Sem reservas para o restaurante no dia de hoje")
+                )
+                .when(reservaUseCaseImpl)
+                .buscaReservasPendentesDoDia(any());
+
+        var reservaController = new ReservaController(reservaUseCaseImpl);
+
+        // execução e avaliação
+        var excecao = Assertions.assertThrows(RuntimeException.class, () -> {
+            reservaController.buscaReservasPendentesDoDia("12345678901234");
+        });
+    }
+
     private static Stream<Arguments> requestValidandoCampos() {
         return Stream.of(
                 Arguments.of(null, LocalDate.now(), "11:15", 5, "11122233344"),

@@ -1,6 +1,7 @@
 package com.fiap.techchallenge3.infrastructure.reserva.controller;
 
 import com.fiap.techchallenge3.domain.reserva.StatusReservaEnum;
+import com.fiap.techchallenge3.infrastructure.reserva.controller.dto.ExibeReservasPendentesDTO;
 import com.fiap.techchallenge3.infrastructure.reserva.controller.dto.ReservaDTO;
 import com.fiap.techchallenge3.useCase.reserva.ReservaUseCase;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,6 +10,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static com.fiap.techchallenge3.infrastructure.reserva.controller.ReservaController.URL_RESERVA;
 
@@ -57,14 +60,14 @@ public class ReservaController {
 				.build();
 	}
 
-//	@Operation(
-//			summary = "Serviço para listar reservas PENDENTES do dia no restaurante."
-//	)
-//	@GetMapping("/{cnpj}")
-//	public ResponseEntity<ExibeReservasPendentesDTO> buscaReservasPendentesDoDia(@PathVariable("cnpj") final String cnpj) {
-//		return ResponseEntity
-//				.status(HttpStatus.OK)
-//				.build(this.service.buscaReservasPendentesDoDia(cnpj));
-//	}
+	@Operation(
+			summary = "Serviço para listar reservas PENDENTES do dia no restaurante."
+	)
+	@GetMapping("/{cnpj}")
+	public ResponseEntity<List<ExibeReservasPendentesDTO>> buscaReservasPendentesDoDia(@PathVariable("cnpj") final String cnpj) {
+		return ResponseEntity
+				.status(HttpStatus.OK)
+				.body(this.service.buscaReservasPendentesDoDia(cnpj));
+	}
 
 }

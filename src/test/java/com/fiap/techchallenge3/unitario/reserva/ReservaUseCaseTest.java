@@ -3,6 +3,7 @@ package com.fiap.techchallenge3.unitario.reserva;
 import com.fiap.techchallenge3.domain.reserva.StatusReservaEnum;
 import com.fiap.techchallenge3.domain.restaurante.model.DiasEnum;
 import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
+import com.fiap.techchallenge3.infrastructure.reserva.controller.dto.ExibeReservasPendentesDTO;
 import com.fiap.techchallenge3.infrastructure.reserva.controller.dto.ReservaDTO;
 import com.fiap.techchallenge3.infrastructure.reserva.model.ReservaEntity;
 import com.fiap.techchallenge3.infrastructure.reserva.repository.ReservaRepository;
@@ -464,6 +465,91 @@ public class ReservaUseCaseTest {
         });
         verify(reservaRepository, times(0)).save(Mockito.any());
         Assertions.assertEquals("Reserva não encontrada", excecao.getMessage());
+    }
+
+    @Test
+    public void reserva_buscaReservasPendentesDoDia() {
+        // preparação
+        var restauranteRepository = Mockito.mock(RestauranteRepository.class);
+
+        var horarioReserva = LocalDateTime.now();
+        var reservaRepository = Mockito.mock(ReservaRepository.class);
+        Mockito.when(reservaRepository.findByCnpjRestauranteAndDiaAndStatusReserva(
+                    Mockito.any(),
+                    Mockito.any(),
+                    Mockito.any()
+                    )
+                )
+                .thenReturn(
+                        List.of(new ReservaEntity(
+                                1L,
+                                "12345678901234",
+                                "11122233344",
+                                LocalDate.now(),
+                                "18:00",
+                                10,
+                                horarioReserva,
+                                StatusReservaEnum.PENDENTE
+                        ))
+                );
+
+        var reservaUseCaseImpl = new ReservaUseCaseImpl(reservaRepository, restauranteRepository);
+
+        // execução
+        var exibeReservasPendentesDTO = reservaUseCaseImpl.buscaReservasPendentesDoDia("12345678901234");
+
+        // avaliação
+        verify(reservaRepository, times(1))
+                .findByCnpjRestauranteAndDiaAndStatusReserva(Mockito.any(), Mockito.any(), Mockito.any());
+        Assertions.assertEquals(1, exibeReservasPendentesDTO.size());
+        Assertions.assertEquals(1, exibeReservasPendentesDTO.get(0).id());
+        Assertions.assertEquals(10, exibeReservasPendentesDTO.get(0).quantidadeLugaresClienteDeseja());
+        Assertions.assertEquals(horarioReserva, exibeReservasPendentesDTO.get(0).horarioDaReservaRealizada());
+    }
+
+    @Test
+    public void reserva_naoBuscaReservasPendentesDoDia_cnpjInvalido() {
+        // preparação
+        var restauranteRepository = Mockito.mock(RestauranteRepository.class);
+
+        var reservaRepository = Mockito.mock(ReservaRepository.class);
+
+        var reservaUseCaseImpl = new ReservaUseCaseImpl(reservaRepository, restauranteRepository);
+
+        // execução e avaliação
+        var excecao = Assertions.assertThrows(RuntimeException.class, () -> {
+            reservaUseCaseImpl.buscaReservasPendentesDoDia("aa");
+        });
+        verify(reservaRepository, times(0))
+                .findByCnpjRestauranteAndDiaAndStatusReserva(Mockito.any(), Mockito.any(), Mockito.any());
+        Assertions.assertEquals("CNPJ INVÁLIDO!", excecao.getMessage());
+    }
+
+    @Test
+    public void reserva_naoBuscaReservasPendentesDoDia_semReservasNoDia() {
+        // preparação
+        var restauranteRepository = Mockito.mock(RestauranteRepository.class);
+
+        var reservaRepository = Mockito.mock(ReservaRepository.class);
+        Mockito.when(reservaRepository.findByCnpjRestauranteAndDiaAndStatusReserva(
+                                Mockito.any(),
+                                Mockito.any(),
+                                Mockito.any()
+                        )
+                )
+                .thenReturn(
+                        List.of()
+                );
+
+        var reservaUseCaseImpl = new ReservaUseCaseImpl(reservaRepository, restauranteRepository);
+
+        // execução e avaliação
+        var excecao = Assertions.assertThrows(RuntimeException.class, () -> {
+            reservaUseCaseImpl.buscaReservasPendentesDoDia("12345678901234");
+        });
+        verify(reservaRepository, times(1))
+                .findByCnpjRestauranteAndDiaAndStatusReserva(Mockito.any(), Mockito.any(), Mockito.any());
+        Assertions.assertEquals("Sem reservas para o restaurante no dia de hoje", excecao.getMessage());
     }
 
     private static Stream<Arguments> requestValidandoCampos() {
