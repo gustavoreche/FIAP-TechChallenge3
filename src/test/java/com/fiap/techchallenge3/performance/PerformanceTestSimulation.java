@@ -1,5 +1,6 @@
 package com.fiap.techchallenge3.performance;
 
+import com.fiap.techchallenge3.domain.reserva.StatusReservaEnum;
 import io.gatling.javaapi.core.ActionBuilder;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Simulation;
@@ -70,6 +71,12 @@ public class PerformanceTestSimulation extends Simulation {
                     """))
             .check(status().is(201));
 
+    ActionBuilder atualizaReservaRequest = http("atualiza reserva no restaurante")
+            .put("/reserva/atualiza/1")
+            .header("Content-Type", "application/json")
+            .queryParam("status", StatusReservaEnum.RESERVADO)
+            .check(status().is(200));
+
     ScenarioBuilder cenarioBuscaLocalizacao = scenario("Buscar localizacao")
             .exec(buscaLocalizacaoRequest);
 
@@ -83,6 +90,11 @@ public class PerformanceTestSimulation extends Simulation {
     ScenarioBuilder cenarioRealizaReserva = scenario("Realiza reserva no restaurante")
             .exec(cadastraRestauranteRequest)
             .exec(realizaReservaRequest);
+
+    ScenarioBuilder cenarioAtualizaReserva = scenario("Atualiza reserva no restaurante")
+            .exec(cadastraRestauranteRequest)
+            .exec(realizaReservaRequest)
+            .exec(atualizaReservaRequest);
 
     {
         setUp(
@@ -115,6 +127,15 @@ public class PerformanceTestSimulation extends Simulation {
                                 .to(1)
                                 .during(Duration.ofSeconds(10))),
                 cenarioRealizaReserva.injectOpen(
+                        rampUsersPerSec(1)
+                                .to(10)
+                                .during(Duration.ofSeconds(10)),
+                        constantUsersPerSec(10)
+                                .during(Duration.ofSeconds(20)),
+                        rampUsersPerSec(10)
+                                .to(1)
+                                .during(Duration.ofSeconds(10))),
+                cenarioAtualizaReserva.injectOpen(
                         rampUsersPerSec(1)
                                 .to(10)
                                 .during(Duration.ofSeconds(10)),

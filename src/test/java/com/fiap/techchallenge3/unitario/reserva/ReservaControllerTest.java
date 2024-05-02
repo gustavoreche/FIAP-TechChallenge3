@@ -1,5 +1,6 @@
 package com.fiap.techchallenge3.unitario.reserva;
 
+import com.fiap.techchallenge3.domain.reserva.StatusReservaEnum;
 import com.fiap.techchallenge3.infrastructure.reserva.controller.ReservaController;
 import com.fiap.techchallenge3.infrastructure.reserva.controller.dto.ReservaDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.RestauranteController;
@@ -149,6 +150,44 @@ public class ReservaControllerTest {
                             quantidadeLugares,
                             cpfCnpjCliente
                     )
+            );
+        });
+    }
+
+    @Test
+    public void reserva_deveRetornar200_atualizaNaBaseDeDados() {
+        // preparação
+        var reservaUseCaseImpl = Mockito.mock(ReservaUseCaseImpl.class);
+
+        var reservaController = new ReservaController(reservaUseCaseImpl);
+
+        // execução
+        var restaurante = reservaController.atualizaReserva(
+                1L,
+                StatusReservaEnum.RESERVADO
+        );
+
+        // avaliação
+        Assertions.assertEquals(HttpStatus.OK, restaurante.getStatusCode());
+    }
+
+    @Test
+    public void reserva_deveRetornar500_reservaNaoEncontrada_naoAtualizaNaBaseDeDados() {
+        // preparação
+        var reservaUseCaseImpl = Mockito.mock(ReservaUseCaseImpl.class);
+        Mockito.doThrow(
+                        new RuntimeException("Restaurante não tem reservas disponíveis para o dia e horário solicitado")
+                )
+                .when(reservaUseCaseImpl)
+                .atualizaReserva(any(Long.class), any(StatusReservaEnum.class));
+
+        var reservaController = new ReservaController(reservaUseCaseImpl);
+
+        // execução e avaliação
+        var excecao = Assertions.assertThrows(RuntimeException.class, () -> {
+            reservaController.atualizaReserva(
+                    1L,
+                    StatusReservaEnum.RESERVADO
             );
         });
     }

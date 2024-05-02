@@ -65,9 +65,15 @@ public class ReservaUseCaseImpl implements ReservaUseCase {
     }
 
     @Override
-    public void atualizaReserva(final String cnpj,
+    public void atualizaReserva(final Long idDaReserva,
                                 final StatusReservaEnum status) {
-//        this.repositoryReserva.save(dadosReserva.converte(cnpj));
+        var reserva = this.repositoryReserva.findById(idDaReserva);
+        if (reserva.isEmpty()) {
+            throw new RuntimeException("Reserva não encontrada");
+        }
+        var reservaEntity = reserva.get();
+        reservaEntity.setStatusReserva(status);
+        this.repositoryReserva.save(reservaEntity);
     }
 
     @Override

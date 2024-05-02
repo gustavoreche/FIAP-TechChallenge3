@@ -22,6 +22,7 @@ public class ReservaController {
 
 	public static final String URL_RESERVA = "/reserva";
 	public static final String URL_RESERVA_POR_CNPJ = URL_RESERVA.concat("/{cnpj}");
+	public static final String URL_ATUALIZA_RESERVA = URL_RESERVA.concat("/atualiza/{idDaReserva}");
 
 	private final ReservaUseCase service;
 
@@ -42,11 +43,15 @@ public class ReservaController {
 	}
 
 	@Operation(
-			summary = "Serviço para atualizar o status da reserva no restaurante."
+			summary = "Serviço para atualizar o status das reservas no restaurante.",
+			description = """
+					DICA: Para encontrar o "idDaReserva", basta apenas consultar o endpoint "/reserva/{cnpj}"
+					"""
 	)
-	@PutMapping("/atualiza/{cnpj}")
-	public ResponseEntity<Void> atualizaReserva(@PathVariable("cnpj") final String cnpj, @RequestParam @Valid final StatusReservaEnum status) {
-		this.service.atualizaReserva(cnpj, status);
+	@PutMapping("/atualiza/{idDaReserva}")
+	public ResponseEntity<Void> atualizaReserva(@PathVariable("idDaReserva") final Long idDaReserva,
+												@RequestParam @Valid final StatusReservaEnum status) {
+		this.service.atualizaReserva(idDaReserva, status);
 		return ResponseEntity
 				.status(HttpStatus.OK)
 				.build();
