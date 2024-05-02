@@ -29,11 +29,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.fiap.techchallenge3.infrastructure.reserva.controller.ReservaController.URL_RESERVA;
-import static com.fiap.techchallenge3.infrastructure.reserva.controller.ReservaController.URL_RESERVA_POR_CNPJ;
+import static com.fiap.techchallenge3.infrastructure.reserva.controller.ReservaController.*;
 import static com.fiap.techchallenge3.infrastructure.restaurante.controller.RestauranteController.URL_RESTAURANTE;
 import static com.fiap.techchallenge3.utils.RestauranteUtils.*;
 
@@ -401,6 +401,7 @@ class ReservaControllerIT {
 				.dia(LocalDate.now())
 				.horarioDeChegada("10:01")
 				.quantidadeLugaresClienteDeseja(9)
+				.horarioDaReservaRealizada(LocalDateTime.now())
 				.statusReserva(StatusReservaEnum.RESERVADO)
 				.build();
 		this.repositoryRestaurante.save(restaurante1);
@@ -479,6 +480,107 @@ class ReservaControllerIT {
 						.isBadRequest()
 				);
 		Assertions.assertEquals(0, this.repositoryReserva.findAll().size());
+	}
+
+	@Test
+	public void reserva_deveRetornar200_atualizaNaBaseDeDados() throws Exception {
+		var mockData = Mockito.mockStatic(LocalDate.class, Mockito.CALLS_REAL_METHODS);
+		var dataMock = LocalDate.of(2024, 04, 30);
+		mockData.when(LocalDate::now)
+				.thenReturn(dataMock);
+
+		var mockDateTime = Mockito.mockStatic(LocalDateTime.class, Mockito.CALLS_REAL_METHODS);
+		var dateTimeMock = LocalDateTime.of(2024, 04, 30, 10, 01, 00);
+		mockDateTime.when(LocalDateTime::now)
+				.thenReturn(dateTimeMock);
+
+		var dataReserva = LocalDateTime.now();
+		var restaurante1 = RestauranteEntity.builder()
+				.cnpj("49251058000123")
+				.nome("Restaurante Teste A")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("24horas")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade teste A")
+				.estado("SP")
+				.build();
+		this.repositoryRestaurante.save(restaurante1);
+		var reserva1 = ReservaEntity.builder()
+				.id(1L)
+				.cnpjRestaurante("49251058000123")
+				.cpfCnpjCliente("11122233344")
+				.dia(LocalDate.now())
+				.horarioDeChegada("10:01")
+				.quantidadeLugaresClienteDeseja(9)
+				.horarioDaReservaRealizada(dataReserva)
+				.statusReserva(StatusReservaEnum.PENDENTE)
+				.build();
+		this.repositoryReserva.save(reserva1);
+
+		this.mockMvc
+				.perform(MockMvcRequestBuilders.put(URL_ATUALIZA_RESERVA.replace("{idDaReserva}", "1"))
+						.param("status", StatusReservaEnum.RESERVADO.name())
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isOk()
+				);
+
+		var reserva = this.repositoryReserva.findAll().get(0);
+
+		Assertions.assertEquals(1, this.repositoryReserva.findAll().size());
+		Assertions.assertEquals("49251058000123", reserva.getCnpjRestaurante());
+		Assertions.assertEquals("11122233344", reserva.getCpfCnpjCliente());
+		Assertions.assertEquals(LocalDate.of(2024, 04, 30), reserva.getDia());
+		Assertions.assertEquals("10:01", reserva.getHorarioDeChegada());
+		Assertions.assertEquals(9, reserva.getQuantidadeLugaresClienteDeseja());
+		Assertions.assertEquals(StatusReservaEnum.RESERVADO, reserva.getStatusReserva());
+		Assertions.assertEquals(dataReserva, reserva.getHorarioDaReservaRealizada());
+
+		mockData.close();
+		mockDateTime.close();
+	}
+
+	@Test
+	public void reserva_deveRetornar500_reservaNaoEncontrada_naoAtualizaNaBaseDeDados() throws Exception {
+		var mockData = Mockito.mockStatic(LocalDate.class, Mockito.CALLS_REAL_METHODS);
+		var dataMock = LocalDate.of(2024, 04, 30);
+		mockData.when(LocalDate::now)
+				.thenReturn(dataMock);
+
+		var restaurante1 = RestauranteEntity.builder()
+				.cnpj("49251058000123")
+				.nome("Restaurante Teste A")
+				.tipoCozinha(TipoCozinhaEnum.COMIDA_ARABE)
+				.diasFuncionamento(List.of(DiasEnum.TODOS).toString())
+				.horarioFuncionamento("24horas")
+				.capacidadeDePessoas(500)
+				.cep("14000000")
+				.logradouro("rua teste")
+				.numeroEndereco(10)
+				.bairro("bairro teste A")
+				.cidade("cidade teste A")
+				.estado("SP")
+				.build();
+		this.repositoryRestaurante.save(restaurante1);
+
+		this.mockMvc
+				.perform(MockMvcRequestBuilders.put(URL_ATUALIZA_RESERVA.replace("{idDaReserva}", "25"))
+						.param("status", StatusReservaEnum.RESERVADO.name())
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers
+						.status()
+						.isInternalServerError()
+				);
+
+		Assertions.assertEquals(0, this.repositoryReserva.findAll().size());
+
+		mockData.close();
 	}
 
 	private static Stream<Arguments> requestValidandoCampos() {

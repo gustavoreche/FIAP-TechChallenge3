@@ -9,7 +9,7 @@ public interface ReservaUseCase {
     void reserva(final String cnpj,
                  final ReservaDTO dadosReserva);
 
-    void atualizaReserva(final String cnpj,
+    void atualizaReserva(final Long idDaReserva,
                          final StatusReservaEnum status);
 
     ExibeReservasPendentesDTO buscaReservasPendentesDoDia(final String cnpj);

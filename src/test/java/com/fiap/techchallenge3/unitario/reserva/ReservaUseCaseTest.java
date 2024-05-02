@@ -1,5 +1,6 @@
 package com.fiap.techchallenge3.unitario.reserva;
 
+import com.fiap.techchallenge3.domain.reserva.StatusReservaEnum;
 import com.fiap.techchallenge3.domain.restaurante.model.DiasEnum;
 import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
 import com.fiap.techchallenge3.infrastructure.reserva.controller.dto.ReservaDTO;
@@ -407,6 +408,62 @@ public class ReservaUseCaseTest {
             );
         });
         verify(reservaRepository, times(0)).save(Mockito.any());
+    }
+
+    @Test
+    public void reserva_atualizaNaBaseDeDados() {
+        // preparação
+        var restauranteRepository = Mockito.mock(RestauranteRepository.class);
+
+        var reservaRepository = Mockito.mock(ReservaRepository.class);
+        Mockito.when(reservaRepository.findById(Mockito.any()))
+                .thenReturn(
+                        Optional.of(new ReservaEntity(
+                                1L,
+                                "12345678901234",
+                                "11122233344",
+                                LocalDate.now(),
+                                "18:00",
+                                10,
+                                LocalDateTime.now(),
+                                StatusReservaEnum.PENDENTE
+                        ))
+                );
+
+        var reservaUseCaseImpl = new ReservaUseCaseImpl(reservaRepository, restauranteRepository);
+
+        // execução
+        reservaUseCaseImpl.atualizaReserva(
+                1L,
+                StatusReservaEnum.RESERVADO
+        );
+
+        // avaliação
+        verify(reservaRepository, times(1)).save(Mockito.any());
+    }
+
+    @Test
+    public void reserva_reservaNaoEncontrada_naoAtualizaNaBaseDeDados() {
+        // preparação
+        var restauranteRepository = Mockito.mock(RestauranteRepository.class);
+
+        var reservaRepository = Mockito.mock(ReservaRepository.class);
+        Mockito.when(reservaRepository.findById(Mockito.any()))
+                .thenReturn(
+                        Optional.empty()
+                );
+
+        var reservaUseCaseImpl = new ReservaUseCaseImpl(reservaRepository, restauranteRepository);
+
+        // execução e avaliação
+        var excecao = Assertions.assertThrows(RuntimeException.class, () -> {
+            reservaUseCaseImpl.atualizaReserva(
+                    1L,
+                    StatusReservaEnum.RESERVADO
+            );
+        });
+        verify(reservaRepository, times(0)).save(Mockito.any());
+        Assertions.assertEquals("Reserva não encontrada", excecao.getMessage());
     }
 
     private static Stream<Arguments> requestValidandoCampos() {
