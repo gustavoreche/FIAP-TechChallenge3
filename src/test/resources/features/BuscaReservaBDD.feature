@@ -1,6 +1,6 @@
 # language: pt
 
-Funcionalidade: Teste de atualizar reserva no restaurante
+Funcionalidade: Teste de buscar reserva no restaurante
 
   Cenário: Busca reserva pendente do dia atual do restaurante
     Dado que existe determinado restaurante cadastrado no sistema

@@ -1,13 +1,13 @@
 package com.fiap.techchallenge3.domain.reserva;
 
-import com.fiap.techchallenge3.domain.restaurante.model.DiasEnum;
+import com.fiap.techchallenge3.domain.restaurante.DiasEnum;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Objects;
 
-import static com.fiap.techchallenge3.domain.restaurante.model.Cnpj.REGEX_CNPJ;
+import static com.fiap.techchallenge3.domain.restaurante.Cnpj.REGEX_CNPJ;
 
 public record Reserva(
         LocalDate dia,
@@ -17,9 +17,6 @@ public record Reserva(
 )
 {
     public static final String REGEX_HORARIO_CHEGADA = "^\\d{2}:\\d{2}$";
-    public static final String REGEX_CPF_OU_CNPJ = "(^\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}$|"
-            .concat(REGEX_CNPJ)
-            .concat(")");
 
     public Reserva {
         if (Objects.isNull(dia)) {
@@ -38,13 +35,6 @@ public record Reserva(
 
         if (quantidadeLugares < 1 || quantidadeLugares > 50) {
             throw new IllegalArgumentException("A quantidade de lugares deve ter no mínimo 1 ou no máximo 50");
-        }
-
-        if (Objects.isNull(cpfCnpjCliente) || cpfCnpjCliente.isEmpty()) {
-            throw new IllegalArgumentException("CPF OU CNPJ DO CLIENTE NAO PODE SER NULO OU VAZIO!");
-        }
-        if (!cpfCnpjCliente.matches(REGEX_CPF_OU_CNPJ)) {
-            throw new IllegalArgumentException("CPF OU CNPJ DO CLIENTE INVÁLIDO!");
         }
 
     }

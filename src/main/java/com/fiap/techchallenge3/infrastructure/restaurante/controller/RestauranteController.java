@@ -1,6 +1,6 @@
 package com.fiap.techchallenge3.infrastructure.restaurante.controller;
 
-import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
+import com.fiap.techchallenge3.domain.restaurante.TipoCozinhaEnum;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.CriaRestauranteDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.ExibeBuscaRestauranteDTO;
 import com.fiap.techchallenge3.useCase.restaurante.RestauranteUseCase;

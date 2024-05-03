@@ -1,8 +1,9 @@
 package com.fiap.techchallenge3.useCase.reserva.impl;
 
+import com.fiap.techchallenge3.domain.reserva.CpfCnpj;
 import com.fiap.techchallenge3.domain.reserva.Reserva;
 import com.fiap.techchallenge3.domain.reserva.StatusReservaEnum;
-import com.fiap.techchallenge3.domain.restaurante.model.Cnpj;
+import com.fiap.techchallenge3.domain.restaurante.Cnpj;
 import com.fiap.techchallenge3.infrastructure.reserva.controller.dto.ExibeReservasPendentesDTO;
 import com.fiap.techchallenge3.infrastructure.reserva.controller.dto.ReservaDTO;
 import com.fiap.techchallenge3.infrastructure.reserva.model.ReservaEntity;
@@ -32,11 +33,12 @@ public class ReservaUseCaseImpl implements ReservaUseCase {
     public void reserva(final String cnpj,
                         final ReservaDTO dadosReserva) {
         var cnpjObject = new Cnpj(cnpj);
+        var cpfCnpjObject = new CpfCnpj(dadosReserva.cpfCnpjCliente());
         var reserva = new Reserva(
                 dadosReserva.dia(),
                 dadosReserva.horarioDeChegada(),
                 dadosReserva.quantidadeLugares(),
-                dadosReserva.cpfCnpjCliente()
+                cpfCnpjObject.numero()
         );
 
         var restaurante = this.repositoryRestaurante.findById(cnpjObject.numero());

@@ -1,6 +1,5 @@
 package com.fiap.techchallenge3.infrastructure.reserva.model;
 
-import com.fiap.techchallenge3.domain.restaurante.model.DiasEnum;
 import com.fiap.techchallenge3.domain.reserva.StatusReservaEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

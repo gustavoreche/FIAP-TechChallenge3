@@ -1,9 +1,9 @@
-package com.fiap.techchallenge3.domain.restaurante.model;
+package com.fiap.techchallenge3.domain.restaurante;
 
 import java.util.Objects;
 
-import static com.fiap.techchallenge3.domain.localizacao.model.Cep.REGEX_CEP;
-import static com.fiap.techchallenge3.domain.localizacao.model.Localizacao.REGEX_ESTADO;
+import static com.fiap.techchallenge3.domain.localizacao.Cep.REGEX_CEP;
+import static com.fiap.techchallenge3.domain.localizacao.Localizacao.REGEX_ESTADO;
 
 public record BuscaRestaurante(
         String nome,

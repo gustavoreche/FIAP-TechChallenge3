@@ -1,7 +1,7 @@
 package com.fiap.techchallenge3.useCase.localizacao.impl;
 
-import com.fiap.techchallenge3.domain.localizacao.model.Cep;
-import com.fiap.techchallenge3.domain.localizacao.model.Localizacao;
+import com.fiap.techchallenge3.domain.localizacao.Cep;
+import com.fiap.techchallenge3.domain.localizacao.Localizacao;
 import com.fiap.techchallenge3.domain.localizacao.service.LocalizacaoAdapter;
 import com.fiap.techchallenge3.useCase.localizacao.LocalizacaoUseCase;
 import org.springframework.stereotype.Service;

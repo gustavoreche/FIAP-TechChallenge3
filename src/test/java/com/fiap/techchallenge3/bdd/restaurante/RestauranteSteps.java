@@ -1,7 +1,7 @@
 package com.fiap.techchallenge3.bdd.restaurante;
 
-import com.fiap.techchallenge3.domain.restaurante.model.DiasEnum;
-import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
+import com.fiap.techchallenge3.domain.restaurante.DiasEnum;
+import com.fiap.techchallenge3.domain.restaurante.TipoCozinhaEnum;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.CriaRestauranteDTO;
 import io.cucumber.java.pt.Dado;
 import io.cucumber.java.pt.Entao;

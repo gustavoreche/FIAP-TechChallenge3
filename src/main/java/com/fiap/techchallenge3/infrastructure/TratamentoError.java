@@ -1,6 +1,6 @@
 package com.fiap.techchallenge3.infrastructure;
 
-import com.fiap.techchallenge3.domain.restaurante.model.exception.HorarioInvalidoException;
+import com.fiap.techchallenge3.domain.restaurante.exception.HorarioInvalidoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;

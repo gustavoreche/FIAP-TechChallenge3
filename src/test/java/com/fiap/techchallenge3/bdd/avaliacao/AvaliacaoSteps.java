@@ -1,7 +1,8 @@
-package com.fiap.techchallenge3.bdd.reserva;
+package com.fiap.techchallenge3.bdd.avaliacao;
 
 import com.fiap.techchallenge3.domain.reserva.StatusReservaEnum;
 import com.fiap.techchallenge3.domain.restaurante.TipoCozinhaEnum;
+import com.fiap.techchallenge3.infrastructure.avaliacao.controller.dto.AvaliacaoDTO;
 import com.fiap.techchallenge3.infrastructure.reserva.controller.dto.ReservaDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.CriaRestauranteDTO;
 import io.cucumber.java.pt.Dado;
@@ -15,6 +16,7 @@ import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
 
+import static com.fiap.techchallenge3.infrastructure.avaliacao.controller.AvaliacaoController.URL_AVALIACAO_POR_CNPJ;
 import static com.fiap.techchallenge3.infrastructure.reserva.controller.ReservaController.URL_ATUALIZA_RESERVA;
 import static com.fiap.techchallenge3.infrastructure.reserva.controller.ReservaController.URL_RESERVA_POR_CNPJ;
 import static com.fiap.techchallenge3.infrastructure.restaurante.controller.RestauranteController.URL_RESTAURANTE;
@@ -23,13 +25,15 @@ import static com.fiap.techchallenge3.utils.RestauranteUtils.localizacaoDefault;
 import static io.restassured.RestAssured.given;
 
 
-public class AtualizaReservaSteps {
+public class AvaliacaoSteps {
 
     private Response response;
-    private String idDaReserva;
+    private String cnpjRestaurante;
+    private String cpfCnpjCliente;
+    private AvaliacaoDTO request;
 
-    @Dado("que existe um restaurante cadastrado no sistema")
-    public void existeUmRestauranteCadastradoNoSistema() {
+    @Dado("que um restaurante cadastrado no sistema")
+    public void umRestauranteCadastradoNoSistema() {
         var request = new CriaRestauranteDTO(
                 "49.251.058/0001-05",
                 "Restaurante Cucumber",
@@ -50,56 +54,47 @@ public class AtualizaReservaSteps {
                 .statusCode(HttpStatus.CREATED.value());
     }
 
-    @E("um cliente efetuou uma reserva nesse restaurante")
-    public void umClienteEfetuouUmaReservaNesseRestaurante() {
-        var request = new ReservaDTO(
-                LocalDate.now().plusDays(1),
-                "18:15",
-                2,
-                "12345678901"
+    @E("desejo realizar a avaliação da visita a esse restaurante")
+    public void desejoRealizarAAvaliacaoDaVisitaAEsseRestaurante() {
+        this.cnpjRestaurante = "49251058000105";
+        this.cpfCnpjCliente = "11122233344";
+        this.request = new AvaliacaoDTO(
+                "Restaurante excelente",
+                10
         );
-        RestAssured.baseURI = "http://localhost:8080";
-        given()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(request)
-                .when()
-                .post(URL_RESERVA_POR_CNPJ.replace("{cnpj}", "49251058000105"))
-                .prettyPeek()
-                .then()
-                .statusCode(HttpStatus.CREATED.value());
     }
 
-    @E("desejo efetivar a reserva do cliente")
-    public void desejoEfetivarAReservaDoCliente() {
-        this.idDaReserva = "1";
+    @E("desejo realizar a avaliação da visita de um restaurante não cadastrado no sistema")
+    public void desejoRealizarAAvaliacaoDaVisitaDeUmRestauranteNaoCadastradoNoSistema() {
+        this.cnpjRestaurante = "49251058000333";
+        this.cpfCnpjCliente = "11122233344";
+        this.request = new AvaliacaoDTO(
+                "Restaurante excelente",
+                10
+        );
     }
 
-    @E("desejo efetivar uma reserva que não existe")
-    public void desejoEfetivarUmaReservaQueNaoExiste() {
-        this.idDaReserva = "1000000000000";
-    }
-
-    @Quando("realizo a atualização da reserva")
-    public void realizoAAtualizacaoDaReserva() {
+    @Quando("realizo a avaliação do restaurante")
+    public void realizoAAvaliacaoDoRestaurante() {
         RestAssured.baseURI = "http://localhost:8080";
         this.response = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .queryParam("status", StatusReservaEnum.RESERVADO)
+                .body(this.request)
                 .when()
-                .put(URL_ATUALIZA_RESERVA.replace("{idDaReserva}", this.idDaReserva));
+                .post(URL_AVALIACAO_POR_CNPJ.replace("{cnpjRestaurante}", this.cnpjRestaurante).replace("{cpfCnpjCliente}", this.cpfCnpjCliente));
     }
 
-    @Entao("recebo uma resposta que a reserva foi atualizada com sucesso")
-    public void receboUmaRespostaQueAReservaFoiAtualizadaComSucesso() {
+    @Entao("recebo uma resposta que a avaliação foi realizada com sucesso")
+    public void receboUmaRespostaQueAAvaliacaoFoiRealizadaComSucesso() {
         this.response
                 .prettyPeek()
                 .then()
-                .statusCode(HttpStatus.OK.value())
+                .statusCode(HttpStatus.CREATED.value())
         ;
     }
 
-    @Entao("recebo uma resposta que a reserva não foi atualizada com sucesso")
-    public void receboUmaRespostaQueAReservaNaoFoiAtualizadaComSucesso() {
+    @Entao("recebo uma resposta que a avaliação não foi realizada com sucesso")
+    public void receboUmaRespostaQueAAvaliacaoNaoFoiRealizadaComSucesso() {
         this.response
                 .prettyPeek()
                 .then()

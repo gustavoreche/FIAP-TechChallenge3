@@ -1,6 +1,6 @@
 package com.fiap.techchallenge3.infrastructure.localizacao.controller.dto;
 
-import com.fiap.techchallenge3.domain.localizacao.model.Localizacao;
+import com.fiap.techchallenge3.domain.localizacao.Localizacao;
 
 public record LocalizacaoDTO(
         String logradouro,

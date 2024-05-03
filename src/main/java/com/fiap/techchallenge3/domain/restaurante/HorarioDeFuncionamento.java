@@ -1,6 +1,6 @@
-package com.fiap.techchallenge3.domain.restaurante.model;
+package com.fiap.techchallenge3.domain.restaurante;
 
-import com.fiap.techchallenge3.domain.restaurante.model.exception.HorarioInvalidoException;
+import com.fiap.techchallenge3.domain.restaurante.exception.HorarioInvalidoException;
 
 import java.time.LocalTime;
 import java.util.List;

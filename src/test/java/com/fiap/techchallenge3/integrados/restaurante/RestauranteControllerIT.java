@@ -2,9 +2,8 @@ package com.fiap.techchallenge3.integrados.restaurante;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fiap.techchallenge3.domain.restaurante.model.DiasEnum;
-import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
-import com.fiap.techchallenge3.infrastructure.localizacao.client.ViaCepResponse;
+import com.fiap.techchallenge3.domain.restaurante.DiasEnum;
+import com.fiap.techchallenge3.domain.restaurante.TipoCozinhaEnum;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.CriaRestauranteDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.EnderecoCompletoDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.ExibeBuscaRestauranteDTO;

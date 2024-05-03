@@ -1,6 +1,6 @@
-package com.fiap.techchallenge3.domain.restaurante.model;
+package com.fiap.techchallenge3.domain.restaurante;
 
-import com.fiap.techchallenge3.domain.localizacao.model.Localizacao;
+import com.fiap.techchallenge3.domain.localizacao.Localizacao;
 
 import java.util.Objects;
 

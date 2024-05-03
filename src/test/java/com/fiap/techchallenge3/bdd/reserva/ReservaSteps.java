@@ -1,7 +1,6 @@
 package com.fiap.techchallenge3.bdd.reserva;
 
-import com.fiap.techchallenge3.domain.restaurante.model.DiasEnum;
-import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
+import com.fiap.techchallenge3.domain.restaurante.TipoCozinhaEnum;
 import com.fiap.techchallenge3.infrastructure.reserva.controller.dto.ReservaDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.CriaRestauranteDTO;
 import io.cucumber.java.pt.Dado;
@@ -14,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import static com.fiap.techchallenge3.infrastructure.reserva.controller.ReservaController.URL_RESERVA_POR_CNPJ;
 import static com.fiap.techchallenge3.infrastructure.restaurante.controller.RestauranteController.URL_RESTAURANTE;
@@ -54,7 +52,7 @@ public class ReservaSteps {
     public void informoOsDadosParaRealizarAReservaNoRestaurante() {
         this.cnpj = "49251058000105";
         this.request = new ReservaDTO(
-                LocalDate.now(),
+                LocalDate.now().plusDays(1),
                 "18:15",
                 2,
                 "12345678901"
@@ -65,7 +63,7 @@ public class ReservaSteps {
     public void informoOsDadosParaRealizarAReservaDeUmRestauranteQueNaoEstaCadastradoNoSistema() {
         this.cnpj = "49251058000333";
         this.request = new ReservaDTO(
-                LocalDate.now(),
+                LocalDate.now().plusDays(1),
                 "18:15",
                 2,
                 "12345678901"
@@ -76,7 +74,7 @@ public class ReservaSteps {
     public void informoOsDadosParaRealizarAReservaDeUmRestauranteQueEstaFechadoNoHorarioInformado() {
         this.cnpj = "49251058000333";
         this.request = new ReservaDTO(
-                LocalDate.now(),
+                LocalDate.now().plusDays(1),
                 "23:30",
                 2,
                 "12345678901"
@@ -87,7 +85,7 @@ public class ReservaSteps {
     public void informoOsDadosParaRealizarAReservaDeUmRestauranteQueAindaNaoAbriuNoHorarioInformado() {
         this.cnpj = "49251058000333";
         this.request = new ReservaDTO(
-                LocalDate.now(),
+                LocalDate.now().plusDays(1),
                 "17:15",
                 2,
                 "12345678901"
@@ -98,7 +96,7 @@ public class ReservaSteps {
     public void informoOsDadosParaRealizarAReservaDeUmRestauranteQueJaEstaLotadoNoHorarioInformado() {
         this.cnpj = "49251058000333";
         this.request = new ReservaDTO(
-                LocalDate.now(),
+                LocalDate.now().plusDays(1),
                 "19:15",
                 50,
                 "12345678901"

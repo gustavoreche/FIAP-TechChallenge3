@@ -1,7 +1,7 @@
 package com.fiap.techchallenge3.bdd.restaurante;
 
-import com.fiap.techchallenge3.domain.restaurante.model.DiasEnum;
-import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
+import com.fiap.techchallenge3.domain.restaurante.DiasEnum;
+import com.fiap.techchallenge3.domain.restaurante.TipoCozinhaEnum;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.CriaRestauranteDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.ExibeBuscaRestauranteDTO;
 import io.cucumber.java.pt.Dado;
@@ -20,7 +20,6 @@ import java.util.Objects;
 import static com.fiap.techchallenge3.infrastructure.restaurante.controller.RestauranteController.URL_RESTAURANTE;
 import static com.fiap.techchallenge3.utils.RestauranteUtils.*;
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
 
 
 public class BuscaRestauranteSteps {

@@ -1,8 +1,8 @@
 package com.fiap.techchallenge3.useCase.restaurante.impl;
 
-import com.fiap.techchallenge3.domain.localizacao.model.Cep;
-import com.fiap.techchallenge3.domain.localizacao.model.Localizacao;
-import com.fiap.techchallenge3.domain.restaurante.model.*;
+import com.fiap.techchallenge3.domain.localizacao.Cep;
+import com.fiap.techchallenge3.domain.localizacao.Localizacao;
+import com.fiap.techchallenge3.domain.restaurante.*;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.CriaRestauranteDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.ExibeBuscaRestauranteDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.model.RestauranteEntity;

@@ -1,4 +1,4 @@
-package com.fiap.techchallenge3.domain.localizacao.model;
+package com.fiap.techchallenge3.domain.localizacao;
 
 import java.util.Objects;
 

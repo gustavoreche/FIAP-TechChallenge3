@@ -1,7 +1,7 @@
 package com.fiap.techchallenge3.infrastructure.restaurante.controller.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
+import com.fiap.techchallenge3.domain.restaurante.TipoCozinhaEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record CriaRestauranteDTO(

@@ -1,6 +1,6 @@
 package com.fiap.techchallenge3.useCase.localizacao;
 
-import com.fiap.techchallenge3.domain.localizacao.model.Localizacao;
+import com.fiap.techchallenge3.domain.localizacao.Localizacao;
 
 public interface LocalizacaoUseCase {
 

@@ -1,6 +1,6 @@
 package com.fiap.techchallenge3.bdd.reserva;
 
-import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
+import com.fiap.techchallenge3.domain.restaurante.TipoCozinhaEnum;
 import com.fiap.techchallenge3.infrastructure.reserva.controller.dto.ReservaDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.CriaRestauranteDTO;
 import io.cucumber.java.pt.Dado;
@@ -53,7 +53,7 @@ public class BuscaReservaSteps {
     @E("um cliente efetuou uma reserva nesse determinado restaurante")
     public void umClienteEfetuouUmaReservaNesseDeterminadoRestaurante() {
         var request = new ReservaDTO(
-                LocalDate.now(),
+                LocalDate.now().plusDays(1),
                 "18:15",
                 2,
                 "12345678901"

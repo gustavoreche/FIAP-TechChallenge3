@@ -1,4 +1,4 @@
-package com.fiap.techchallenge3.domain.restaurante.model;
+package com.fiap.techchallenge3.domain.restaurante;
 
 import java.util.Objects;
 

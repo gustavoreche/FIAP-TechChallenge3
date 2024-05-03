@@ -1,4 +1,6 @@
-package com.fiap.techchallenge3.domain.localizacao.model;
+package com.fiap.techchallenge3.domain.localizacao;
+
+import com.fiap.techchallenge3.domain.localizacao.Cep;
 
 import java.util.Objects;
 

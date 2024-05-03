@@ -1,6 +1,6 @@
 package com.fiap.techchallenge3.utils;
 
-import com.fiap.techchallenge3.domain.restaurante.model.DiasEnum;
+import com.fiap.techchallenge3.domain.restaurante.DiasEnum;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.EnderecoCompletoDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.HorarioDeFuncionamentoDTO;
 

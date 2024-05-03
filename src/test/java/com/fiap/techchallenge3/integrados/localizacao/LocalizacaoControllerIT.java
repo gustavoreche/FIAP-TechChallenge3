@@ -1,7 +1,6 @@
 package com.fiap.techchallenge3.integrados.localizacao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fiap.techchallenge3.domain.localizacao.model.Cep;
 import com.fiap.techchallenge3.infrastructure.localizacao.client.ViaCepClient;
 import com.fiap.techchallenge3.infrastructure.localizacao.client.ViaCepResponse;
 import org.junit.jupiter.api.Assertions;

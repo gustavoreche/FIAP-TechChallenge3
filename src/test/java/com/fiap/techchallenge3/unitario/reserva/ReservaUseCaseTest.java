@@ -1,24 +1,20 @@
 package com.fiap.techchallenge3.unitario.reserva;
 
 import com.fiap.techchallenge3.domain.reserva.StatusReservaEnum;
-import com.fiap.techchallenge3.domain.restaurante.model.DiasEnum;
-import com.fiap.techchallenge3.domain.restaurante.model.TipoCozinhaEnum;
-import com.fiap.techchallenge3.infrastructure.reserva.controller.dto.ExibeReservasPendentesDTO;
+import com.fiap.techchallenge3.domain.restaurante.DiasEnum;
+import com.fiap.techchallenge3.domain.restaurante.TipoCozinhaEnum;
 import com.fiap.techchallenge3.infrastructure.reserva.controller.dto.ReservaDTO;
 import com.fiap.techchallenge3.infrastructure.reserva.model.ReservaEntity;
 import com.fiap.techchallenge3.infrastructure.reserva.repository.ReservaRepository;
-import com.fiap.techchallenge3.infrastructure.restaurante.controller.dto.CriaRestauranteDTO;
 import com.fiap.techchallenge3.infrastructure.restaurante.model.RestauranteEntity;
 import com.fiap.techchallenge3.infrastructure.restaurante.repository.RestauranteRepository;
 import com.fiap.techchallenge3.useCase.reserva.impl.ReservaUseCaseImpl;
-import com.fiap.techchallenge3.useCase.restaurante.impl.RestauranteUseCaseImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
-import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static com.fiap.techchallenge3.utils.RestauranteUtils.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 

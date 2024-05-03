@@ -55,7 +55,7 @@ public class PerformanceTestSimulation extends Simulation {
             .header("Content-Type", "application/json")
             .check(status().is(200));
 
-    LocalDate data = LocalDate.now();
+    LocalDate data = LocalDate.now().plusDays(1);
     ActionBuilder realizaReservaRequest = http("realiza reserva no restaurante")
             .post("/reserva/49251058000101")
             .header("Content-Type", "application/json")
@@ -81,6 +81,17 @@ public class PerformanceTestSimulation extends Simulation {
             .header("Content-Type", "application/json")
             .check(status().is(200));
 
+    ActionBuilder avaliaReservaRequest = http("avalia o restaurante")
+            .post("/avaliacao/49251058000101/11122233344")
+            .header("Content-Type", "application/json")
+            .body(StringBody("""
+                              {
+                                "comentario": "Restaurante top demais",
+                                "nota": 10
+                              }
+                    """))
+            .check(status().is(201));
+
     ScenarioBuilder cenarioBuscaLocalizacao = scenario("Buscar localizacao")
             .exec(buscaLocalizacaoRequest);
 
@@ -104,6 +115,10 @@ public class PerformanceTestSimulation extends Simulation {
             .exec(cadastraRestauranteRequest)
             .exec(realizaReservaRequest)
             .exec(buscaReservaRequest);
+
+    ScenarioBuilder cenarioAvaliaRestaurante = scenario("Avalia o restaurante")
+            .exec(cadastraRestauranteRequest)
+            .exec(avaliaReservaRequest);
 
     {
         setUp(
@@ -154,6 +169,15 @@ public class PerformanceTestSimulation extends Simulation {
                                 .to(1)
                                 .during(Duration.ofSeconds(10))),
                 cenarioBuscaReserva.injectOpen(
+                        rampUsersPerSec(1)
+                                .to(10)
+                                .during(Duration.ofSeconds(10)),
+                        constantUsersPerSec(10)
+                                .during(Duration.ofSeconds(20)),
+                        rampUsersPerSec(10)
+                                .to(1)
+                                .during(Duration.ofSeconds(10))),
+                cenarioAvaliaRestaurante.injectOpen(
                         rampUsersPerSec(1)
                                 .to(10)
                                 .during(Duration.ofSeconds(10)),
